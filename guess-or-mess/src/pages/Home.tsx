@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createNewGame, addPlayerToGame } from './../firestore'; // Import your function
+import { createNewGame, addPlayerToGame } from '../firebase/firestore'; // Import your function
 import Cookies from 'js-cookie';  // Import js-cookie
 
 function Home() {
