@@ -1,17 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';  // Make sure to import js-cookie
 
 const JoinGame = () => {
-  const [formData, setFormData] = useState({
-    gameCode: "",
-    username: "",
-  });
-
-  // const [errors, setErrors] = useState({
-  //   gameCode: "",
-  //   username: "",
-  // });
-
+  // Get values from cookies when the component mounts
+  const storedUsername = Cookies.get('username');
   const navigate = useNavigate();
 
   const handleInputChange = (e: { target: { name: any; value: any } }) => {
@@ -24,7 +17,7 @@ const JoinGame = () => {
 
   const validateForm = () => {
     let isValid = true;
-    //const newErrors = { gameCode: "", username: "" };
+    const newErrors = { gameCode: "", username: "" };
 
     // TODO: add game code validation
 
@@ -34,15 +27,13 @@ const JoinGame = () => {
   };
 
   const handleJoinGame = () => {
-    if (validateForm()) {
-      navigate(`/lobby/${formData.gameCode}`);
-    }
+    
   };
 
   return (
     <div>
       <h2>
-        Welcome to Join Game Page
+        Welcome to the Join Game Page {storedUsername}
       </h2>
 
       <div>
@@ -54,9 +45,9 @@ const JoinGame = () => {
           onChange={handleInputChange}
           placeholder="Enter game code"
         />
-        {/* {errors.gameCode && (
+        {errors.gameCode && (
           <p>{errors.gameCode}</p>
-        )} */}
+        )}
       </div>
 
       <div>
@@ -68,9 +59,9 @@ const JoinGame = () => {
           onChange={handleInputChange}
           placeholder="Enter your username"
         />
-        {/* {errors.username && (
+        {errors.username && (
           <p className="text-red-500 text-sm">{errors.username}</p>
-        )} */}
+        )}
       </div>
 
       <button
