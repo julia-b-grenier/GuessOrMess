@@ -1,8 +1,9 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import StartGame from './components/StartGame';
-import JoinGame from './components/JoinGame';
-import Home from './components/Home';
+import StartGame from './pages/StartGame';
+import JoinGame from './pages/JoinGame';
+import Lobby from './pages/Lobby';
+import Home from './pages/Home';
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/start-game" element={<StartGame />}></Route>
         <Route path="/join-game" element={<JoinGame />}></Route>
+        <Route path="/lobby/:gameCode" element={<Lobby />}></Route>
       </Routes>
     </Router>
   )
