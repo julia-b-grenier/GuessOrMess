@@ -1,3 +1,16 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "CustomFont";
+  src: url("./assets/fonts/Wakaba-rgexA.otf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.custom-font {
+  font-family: "CustomFont", sans-serif;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
