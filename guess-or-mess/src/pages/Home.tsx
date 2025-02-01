@@ -85,9 +85,9 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h1 className="text-8xl font-bold mb-10">
-        GUESS OR <span className="custom-font text-8xl">MESS</span>
+    <div className="flex flex-col items-center">
+      <h1 className="text-7xl font-bold mb-10 mt-10">
+        GUESS OR <span className="custom-font text-9xl">MESS</span>
       </h1>
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center space-y-2">
@@ -97,7 +97,7 @@ function Home() {
             value={formData.username}
             onChange={handleInputChange}
             placeholder="Enter your username"
-            className="p-3 rounded-lg w-full neon-input"
+            className="rounded-lg w-full neon-input"
           />
           <div
             style={{
@@ -110,21 +110,21 @@ function Home() {
           </div>
         </div>
       </div>
-      <div
-        style={{
-          visibility: error ? "visible" : "hidden",
-          color: "red",
-          margin: "10px",
-        }}
-      >
-        {error}
-      </div>
       <div className="flex flex-row gap-x-8">
         <div>
           <button onClick={handleStartGame}>Start Game</button>
         </div>
         <div>
           <button onClick={handleJoinGame}>Join Game</button>
+          <label>Game Code:</label>
+          <input
+            type="text"
+            name="gameCode"
+            value={formData.gameCode}
+            onChange={handleInputChange}
+            placeholder="Game Code"
+            className="neon-input"
+          />
         </div>
       </div>
     </div>
