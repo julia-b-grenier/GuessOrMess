@@ -11,7 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/start-game" element={<StartGame />}></Route>
+        <Route path="/start-game" element={<StartGame />} />
         <Route path="/join-game" element={<JoinGame />}></Route>
         <Route path="/lobby/:gameCode" element={<Lobby />}></Route>
       </Routes>
