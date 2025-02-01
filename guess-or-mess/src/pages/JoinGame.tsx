@@ -7,10 +7,10 @@ const JoinGame = () => {
     username: "",
   });
 
-  const [errors, setErrors] = useState({
-    gameCode: "",
-    username: "",
-  });
+  // const [errors, setErrors] = useState({
+  //   gameCode: "",
+  //   username: "",
+  // });
 
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ const JoinGame = () => {
 
   const validateForm = () => {
     let isValid = true;
-    const newErrors = { gameCode: "", username: "" };
+    //const newErrors = { gameCode: "", username: "" };
 
     // TODO: add game code validation
 
@@ -54,9 +54,9 @@ const JoinGame = () => {
           onChange={handleInputChange}
           placeholder="Enter game code"
         />
-        {errors.gameCode && (
+        {/* {errors.gameCode && (
           <p>{errors.gameCode}</p>
-        )}
+        )} */}
       </div>
 
       <div>
@@ -68,9 +68,9 @@ const JoinGame = () => {
           onChange={handleInputChange}
           placeholder="Enter your username"
         />
-        {errors.username && (
+        {/* {errors.username && (
           <p className="text-red-500 text-sm">{errors.username}</p>
-        )}
+        )} */}
       </div>
 
       <button
