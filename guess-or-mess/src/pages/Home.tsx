@@ -87,8 +87,8 @@ function Home() {
   };
 
   return (
-    <div>
-      <h1>GUESS OR MESS</h1>
+    <div className="my-5">
+      <h1>GUESS OR <span className="custom-font">MESS</span></h1>
       <div>
         <input
           type="text"
