@@ -1,3 +1,16 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "CustomFont";
+  src: url("./assets/fonts/Wakaba-rgexA.otf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.custom-font {
+  font-family: "CustomFont", sans-serif;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -30,28 +43,40 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+button {
+  background: linear-gradient(to right, #4a90e2, #9b59b6);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+
+  /* Gradient shadow effect */
+  box-shadow: 0 8px 15px rgba(74, 144, 226, 0.4),
+    0 10px 30px rgba(155, 89, 182, 0.4);
+}
+.button::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  background: linear-gradient(to right, #4a90e2, #9b59b6);
+  border-radius: 8px;
+  z-index: -1;
+  filter: blur(10px);
+  opacity: 0.7;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.button:active {
+  transform: translateY(4px);
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.5),
+    0 5px 15px rgba(155, 89, 182, 0.5);
 }
 
 @media (prefers-color-scheme: light) {
@@ -65,4 +90,22 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+
+.neon-input {
+  position: relative;
+  padding: 15px 20px;
+  border: 2px solid transparent;
+  border-radius: 20px; /* Rounded corners */
+  background-color: #000;
+  color: white;
+  font-size: 1.2rem;
+  outline: none;
+  box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.8); /* Neon glow */
+}
+
+/* Focus effect to make the border glow even brighter */
+.neon-input:focus {
+  box-shadow: 0 0 20px 4px rgba(0, 255, 255, 1); /* Brighter neon glow */
 }
