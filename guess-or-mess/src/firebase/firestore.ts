@@ -36,7 +36,6 @@ export const getPlayersInGame = async (gameId: string) => {
   return gameSnap.data().players || [];
 };
 
-//TODO: check duplicates
 export const addPlayerToGame = async (username: string, gameId: string) => {
   // Check if the game exists before adding a player
   const gameRef = doc(db, "games", gameId);
@@ -44,6 +43,22 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
 
   if (!gameSnap.exists()) {
     throw new Error(`Game ${gameId} not found`);
+  }
+
+  const gameData = gameSnap.data();
+  if (!gameData.players) {
+    gameData.players = [];
+  }
+
+  // Check if the username is already in the game's players array
+  const existingPlayersRef = gameData.players; // List of player document paths
+
+  // Fetch each player's document to check usernames
+  for (const playerPath of existingPlayersRef) {
+    const playerDoc = await getDoc(doc(db, playerPath));
+    if (playerDoc.exists() && playerDoc.data().username === username) {
+      throw new Error(`Username "${username}" is already taken in this game.`);
+    }
   }
 
   // Create a reference to the players collection
@@ -59,6 +74,8 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
   await updateDoc(gameRef, {
     players: arrayUnion(playerRef.path), // Add the player's path reference to the game document
   });
+
+  return playerRef.path;
 };
 
 export const createDeck = async (cards: Card[], deckName: string) => {
