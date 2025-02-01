@@ -63,7 +63,7 @@ export class FileSelector extends React.Component<{}, FileState> {
       } catch (error) {
         this.setState({
           error:
-            "Error processing file. Please ensure it's in the correct format.",
+            "Error processing file. Please ensure it's in the correct format." + error,
         });
       }
     };
@@ -125,7 +125,7 @@ function StartGame() {
 
   useEffect(() => {
     // Get values from cookies when the component mounts
-    const storedGameId = Cookies.get('newGameId');
+    const storedGameId = Cookies.get('gameId');
     const storedUsername = Cookies.get('username');
 
     setGameId(storedGameId || null);

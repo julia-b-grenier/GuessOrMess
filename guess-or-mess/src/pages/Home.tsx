@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createNewGame, addPlayerToGame } from '../firebase/firestore'; // Import your function
-import Cookies from 'js-cookie';  // Import js-cookie
+import { createNewGame, addPlayerToGame } from '../firebase/firestore';
+import Cookies from 'js-cookie';
 
 function Home() {
   const navigate = useNavigate();
@@ -10,7 +10,14 @@ function Home() {
     username: "",
     gameCode: ""
   });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>("Username cannot be empty.");
+
+  useEffect(() => {
+    // Remove cookies when the page is refreshed
+    Cookies.remove('username');
+    Cookies.remove('gameId');
+    Cookies.remove('playerId');
+  }, []);
 
   const handleInputChange = (e: { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
@@ -28,14 +35,14 @@ function Home() {
     setError(null); // Clear the error if username is valid
 
     try {
-      const newGameId = await createNewGame();  // Call createNewGame to generate the gameId
-      await addPlayerToGame(formData.username, newGameId);
+      const newGameId = await createNewGame();
+      const playerID = await addPlayerToGame(formData.username, newGameId);
 
-      Cookies.set('username', formData.username, { expires: 1 }); // Set username cookie for 7 days
-      Cookies.set('newGameId', newGameId, { expires: 1 }); // Set newGameId cookie for 7 days
+      Cookies.set('username', formData.username, { expires: 1 });
+      Cookies.set('gameId', newGameId, { expires: 1 }); 
+      Cookies.set('playerId', playerID, { expires: 1 }); 
 
-
-      navigate(`/start-game`);  // Redirect to the new game page
+      navigate(`/start-game`);
     } catch (error) {
       console.error('Error creating game:', error);
     }
@@ -44,17 +51,34 @@ function Home() {
   const handleJoinGame = async () => {
     if (formData.username.trim() === '') {
       setError('Username cannot be empty');
-      return; // Prevent starting the game if the username is empty
+      return; // Prevent joining the game if the username is empty
     }
-    setError(null); // Clear the error if username is valid
-
+  
+    if (formData.gameCode.trim() === '') {
+      setError('Game code cannot be empty');
+      return; // Prevent joining the game if the game code is empty
+    }
+  
+    setError(null); // Clear the error if inputs are valid
+  
     try {
-      Cookies.set('username', formData.username, { expires: 1 }); // Set username cookie for 7 days
-      navigate(`/join-game`);  // Redirect to join game page
+      const playerID = await addPlayerToGame(formData.username, formData.gameCode); // Use gameCode
+  
+      Cookies.set('username', formData.username, { expires: 1 });
+      Cookies.set('gameId', formData.gameCode, { expires: 1 }); 
+      Cookies.set('playerId', playerID, { expires: 1 });
+  
+      navigate(`/join-game`);
     } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
       console.error('Error joining game:', error);
     }
   };
+  
 
   return (
     <>
@@ -69,7 +93,7 @@ function Home() {
         />
       </div>
       <div style={{ visibility: error ? 'visible' : 'hidden', color: 'red', margin: '10px' }}>
-        Username cannot be empty
+        {error}
       </div>
       <div>
         <button onClick={handleStartGame}>Start Game</button>
