@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBa
 export const createNewGame = async () => {
   // Generate gameId that is a 5 alphanumerical code
   const generateGameId = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let gameId = '';
     for (let i = 0; i < 5; i++) {
       gameId += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -21,6 +21,8 @@ export const createNewGame = async () => {
     deck: null,
     players: [],
   });
+
+  return gameId;
 };
 
 export const getPlayersInGame = async (gameId: string) => {
@@ -34,6 +36,7 @@ export const getPlayersInGame = async (gameId: string) => {
   return gameSnap.data().players || [];
 };
 
+//TODO: check duplicates
 export const addPlayerToGame = async (username: string, gameId: string) => {
   // Check if the game exists before adding a player
   const gameRef = doc(db, "games", gameId);
