@@ -43,7 +43,7 @@ body {
   min-height: 100vh;
 }
 
-button {
+.join-game-button {
   background: linear-gradient(to right, #4a90e2, #9b59b6);
   color: white;
   font-size: 18px;
@@ -59,7 +59,7 @@ button {
   box-shadow: 0 8px 15px rgba(74, 144, 226, 0.4),
     0 10px 30px rgba(155, 89, 182, 0.4);
 }
-.button::before {
+.join-game-button::before {
   content: "";
   position: absolute;
   top: 5px;
@@ -73,7 +73,7 @@ button {
   opacity: 0.7;
 }
 
-.button:active {
+.join-game-button:active {
   transform: translateY(4px);
   box-shadow: 0 4px 10px rgba(74, 144, 226, 0.5),
     0 5px 15px rgba(155, 89, 182, 0.5);
