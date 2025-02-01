@@ -144,6 +144,7 @@ function StartGame() {
         <p>Game and username are not available.</p>
       )}
       <p>Game will begin soon!</p>
+      <FileSelector />
     </div>
   );
 }
