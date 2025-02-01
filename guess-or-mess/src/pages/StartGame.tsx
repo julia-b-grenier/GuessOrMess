@@ -2,6 +2,8 @@ import * as cheerio from "cheerio";
 import * as React from "react";
 import { Card } from "../types/game";
 import { createDeck } from "../firebase/firestore";
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';  // Make sure to import js-cookie
 
 interface FileState {
   fileContent: string;
@@ -9,9 +11,6 @@ interface FileState {
   error: string | null;
   success: string | null;
 }
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';  // Make sure to import js-cookie
-
 export class FileSelector extends React.Component<{}, FileState> {
   constructor(props: {}) {
     super(props);
