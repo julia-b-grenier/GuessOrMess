@@ -119,20 +119,13 @@ function Home() {
       >
         {error}
       </div>
-      <div>
-        <button onClick={handleStartGame}>Start Game</button>
-      </div>
-      <div>
-        <button onClick={handleJoinGame}>Join Game</button>
-
-        <label>Game Code:</label>
-        <input
-          type="text"
-          name="gameCode"
-          value={formData.gameCode}
-          onChange={handleInputChange}
-          placeholder="Game Code"
-        />
+      <div className="flex flex-row gap-x-8">
+        <div>
+          <button onClick={handleStartGame}>Start Game</button>
+        </div>
+        <div>
+          <button onClick={handleJoinGame}>Join Game</button>
+        </div>
       </div>
     </div>
   );
