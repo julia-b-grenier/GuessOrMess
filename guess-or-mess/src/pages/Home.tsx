@@ -10,9 +10,7 @@ function Home() {
     username: "",
     gameCode: "",
   });
-  const [error, setError] = useState<string | null>(
-    "Username cannot be empty."
-  );
+  const [error, setError] = useState<string | null>("");
 
   useEffect(() => {
     // Remove cookies when the page is refreshed
@@ -87,16 +85,30 @@ function Home() {
   };
 
   return (
-    <div className="my-5">
-      <h1>GUESS OR <span className="custom-font">MESS</span></h1>
-      <div>
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleInputChange}
-          placeholder="Enter your username"
-        />
+    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <h1 className="text-8xl font-bold mb-10">
+        GUESS OR <span className="custom-font text-8xl">MESS</span>
+      </h1>
+      <div className="w-full max-w-md space-y-6">
+        <div className="flex flex-col items-center space-y-2">
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleInputChange}
+            placeholder="Enter your username"
+            className="p-3 rounded-lg w-full neon-input"
+          />
+          <div
+            style={{
+              visibility: error ? "visible" : "hidden",
+              color: "red",
+              margin: "10px",
+            }}
+          >
+            {error}
+          </div>
+        </div>
       </div>
       <div
         style={{
