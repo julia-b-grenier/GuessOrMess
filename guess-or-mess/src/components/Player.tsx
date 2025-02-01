@@ -2,17 +2,29 @@ import React, { useState } from "react";
 import "./Player.css"; // Import CSS file for styling
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 
-const Player = ({ name }: { name: string }) => {
+interface PlayerProps {
+  name: string;
+  disableEmojiChange?: boolean; // Optional prop to disable emoji change
+}
+
+const Player: React.FC<PlayerProps> = ({
+  name,
+  disableEmojiChange = false,
+}) => {
   const [emoji, setEmoji] = useState("🙂");
   const [isSelected, setIsSelected] = useState(false);
 
   const toggleSelection = () => {
-    setIsSelected(!isSelected);
+    if (!disableEmojiChange) {
+      setIsSelected(!isSelected);
+    }
   };
 
   const handleEmojiChange = (emojiObject: EmojiClickData) => {
-    toggleSelection();
-    setEmoji(emojiObject.emoji); // Set the selected emoji
+    if (!disableEmojiChange) {
+      setEmoji(emojiObject.emoji); // Set the selected emoji
+      setIsSelected(false); // Close the emoji picker after selection
+    }
   };
 
   return (
