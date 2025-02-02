@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Player.css";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData, EmojiStyle } from "emoji-picker-react";
 
 interface PlayerProps {
   name: string;
@@ -40,17 +40,7 @@ const Player: React.FC<PlayerProps> = ({ name, disableEmojiChange = false }) => 
       {isPickerOpen && (
         <div className="modal">
           <div className="modal-content">
-            <EmojiPicker onEmojiClick={handleEmojiChange} />
-            <button className="close-button" onClick={() => setIsPickerOpen(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
-      {/* Full-screen emoji picker modal */}
-      {isPickerOpen && (
-        <div className="emoji-picker-modal">
-          <div className="emoji-picker-content">
-            <EmojiPicker onEmojiClick={handleEmojiChange} />
+            <EmojiPicker onEmojiClick={handleEmojiChange} emojiStyle={EmojiStyle.TWITTER} />
             <button className="close-button" onClick={() => setIsPickerOpen(false)}>Close</button>
           </div>
         </div>

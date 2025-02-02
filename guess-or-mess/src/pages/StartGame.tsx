@@ -109,25 +109,12 @@ class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => 
 
   render() {
     return (
-      <div className="flex flex-col items-center w-full max-w-xl mx-auto">
+      <div className="flex flex-col">
         {!this.state.selectedFileName ? (
-          <label className="w-full cursor-pointer">
-            <div className="border-2 border-dashed border-gray-400 rounded-lg p-8 hover:border-blue-500 transition-colors duration-200">
+          <label className="mr-auto cursor-pointer">
+            <div className="border-2 border-dashed border-gray-400 rounded-lg p-2 hover:border-blue-500 transition-colors duration-200">
               <div className="flex flex-col items-center space-y-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
+                
                 <div className="text-center">
                   <p className="text-lg font-semibold text-gray-300">
                     Drop your deck file here
@@ -242,39 +229,28 @@ function StartGame() {
   };
 
   return (
-    <div className="flex flex-col items-center p-8 space-y-12">
-      <div className="py-4">
-        <GameCode textToCopy={gameId ?? ""}></GameCode>
+    <div className="flex flex-col items-center p-8 space-y-12 max-w-4xl mx-auto">
+      <div className="flex flex-row justify-start w-full">
+        <div className="">
+          <GameCode textToCopy={gameId ?? ""}></GameCode>
+        </div>
+        <button
+          className="join-game-button ml-auto disabled:opacity-20"
+          onClick={handleGameplay}
+          disabled={!deckId}
+        >
+          Start Gameplay
+        </button>
       </div>
 
-      <div>
-        <h2>Welcome to Start Game Page</h2>
-        {gameId && username ? (
-          <>
-            <p>Game ID: {gameId}</p>
-            <p>Username: {username}</p>
-          </>
-        ) : (
-          <p>Game and username are not available.</p>
-        )}
+      <div className="w-full">
 
-        <p>Game will begin soon!</p>
-
-        {/* Pass gameId to FileSelector */}
+        
+        <div className="mb-5 w-100%">
+          <WaitingArea />
+        </div>
         <FileSelector gameId={gameId} onDeckCreated={setDeckId} />
 
-        {/* Only show this button if deckId is available */}
-        {deckId && (
-          <button
-            className="text-white rounded-lg h-12 shadow-md hover:bg-gray-600"
-            onClick={handleGameplay}
-          >
-            Start Gameplay
-          </button>
-        )}
-
-        {/* WaitingArea component */}
-        <WaitingArea />
       </div>
     </div>
   );

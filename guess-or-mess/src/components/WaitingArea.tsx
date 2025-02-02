@@ -33,7 +33,7 @@ const WaitingArea = () => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-row gap-5 flex-wrap border border-gray-300 justify-evenly max-w-5xl max-h-80 overflow-auto p-4">
+    <div style={{backgroundColor: "#4a4a4a66"}} className="flex flex-row gap-5 flex-wrap justify-evenly overflow-auto p-4 max-w-4xl h-80 mx-auto  rounded-xl">
       {players.length > 0 ? (
         players.map((player, index) => (
           <Player key={index} name={player.username} disableEmojiChange={username === player.username} />
