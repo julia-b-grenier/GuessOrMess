@@ -4,7 +4,7 @@ import Player from "./Player";
 import { getPlayersInGame } from "../firebase/firestore"; // Adjust path if needed
 
 const WaitingArea = () => {
-  const [players, setPlayers] = useState<string[]>([]);
+  const [players, setPlayers] = useState<any[]>([]); // Store player objects
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,20 +18,14 @@ const WaitingArea = () => {
       return;
     }
 
-    const fetchPlayers = async () => {
-      try {
-        setLoading(true);
-        const playersList = await getPlayersInGame(gameId);
-        setPlayers(playersList); // Assuming playersList is an array of usernames
-      } catch (err) {
-        setError("Failed to load players.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Use the updated getPlayersInGame function that provides real-time updates
+    const unsubscribe = getPlayersInGame(gameId, (updatedPlayers) => {
+      setPlayers(updatedPlayers); // Update the players state with the real-time data
+      setLoading(false); // Stop loading once players are fetched
+    });
 
-    fetchPlayers();
+    // Cleanup the listener when the component is unmounted or gameId changes
+    return () => unsubscribe();
   }, [gameId]);
 
   if (!gameId) return <div className="text-red-500">Game ID missing!</div>;

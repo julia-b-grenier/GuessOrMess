@@ -26,33 +26,43 @@ export const createNewGame = async () => {
   return gameId;
 };
 
-export const getPlayersInGame = async (gameId: string) => {
+export const getPlayersInGame = (gameId: string, callback: (players: any[]) => void) => {
   const gameRef = doc(db, "games", gameId);
-  const gameSnap = await getDoc(gameRef);
+  
+  // Listen for real-time updates to the game document
+  const unsubscribe = onSnapshot(gameRef, (gameSnap) => {
+    if (!gameSnap.exists()) {
+      callback([]); // If the game doesn't exist, return an empty array
+      return;
+    }
 
-  if (!gameSnap.exists()) {
-    throw new Error(`Game ${gameId} not found`);
-  }
+    const playersRefPaths = gameSnap.data().players || [];
 
-  const playersRefPaths = gameSnap.data().players || [];
+    // Fetch player data for each player reference path
+    Promise.all(
+      playersRefPaths.map(async (playerRefPath: string) => {
+        const playerRef = doc(db, playerRefPath);
+        const playerSnap = await getDoc(playerRef);
 
-  // Fetch the player data for each player reference path
-  const playersData = await Promise.all(
-    playersRefPaths.map(async (playerRefPath: string) => {
-      const playerRef = doc(db, playerRefPath);  // Create a reference to the player document
-      const playerSnap = await getDoc(playerRef);  // Fetch the player data
-      
-      if (!playerSnap.exists()) {
-        console.error(`Player data not found for ${playerRefPath}`);
-        return null; // In case player data is not found, return null (or handle it differently)
-      }
-      
-      return playerSnap.data(); // Return player data
-    })
-  );
+        if (playerSnap.exists()) {
+          return playerSnap.data();
+        }
+        return null; // Handle if player data doesn't exist
+      })
+    )
+      .then((playersData) => {
+        callback(playersData.filter((player) => player !== null)); // Return valid players
+      })
+      .catch((err) => {
+        console.error("Failed to fetch player data", err);
+        callback([]); // If there is an error, return an empty array
+      });
+  });
 
-  return playersData.filter(player => player !== null); // Filter out any null values (in case some players were not found)
+  // Return unsubscribe function to stop the listener when the component is unmounted
+  return unsubscribe;
 };
+
 
 export const addPlayerToGame = async (username: string, gameId: string) => {
   // Check if the game exists before adding a player
