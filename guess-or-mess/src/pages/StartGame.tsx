@@ -4,6 +4,7 @@ import { Card } from "../types/game";
 import { createDeck } from "../firebase/firestore";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import WaitingArea from "../components/WaitingArea";
 import { useNavigate } from "react-router-dom";
 
 interface FileState {
@@ -11,9 +12,13 @@ interface FileState {
   isLoading: boolean;
   error: string | null;
   success: string | null;
+  selectedFileName: string | null;
 }
 
-export class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => void }, FileState> {
+export class FileSelector extends React.Component<
+  { onDeckCreated: (deckId: string) => void },
+  FileState
+> {
   constructor(props: { onDeckCreated: (deckId: string) => void }) {
     super(props);
     this.state = {
@@ -21,6 +26,7 @@ export class FileSelector extends React.Component<{ onDeckCreated: (deckId: stri
       isLoading: false,
       error: null,
       success: null,
+      selectedFileName: null,
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -31,7 +37,10 @@ export class FileSelector extends React.Component<{ onDeckCreated: (deckId: stri
     const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
 
     try {
-      const deckId = await createDeck(shuffledCards, filename.replace(".txt", ""));
+      const deckId = await createDeck(
+        shuffledCards,
+        filename.replace(".txt", "")
+      );
       this.setState({
         isLoading: false,
         success: `Deck successfully created with ID: ${deckId}`,
@@ -52,6 +61,13 @@ export class FileSelector extends React.Component<{ onDeckCreated: (deckId: stri
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (!file.name.endsWith(".txt")) {
+      this.setState({ error: "Please select a .txt file" });
+      return;
+    }
+
+    this.setState({ selectedFileName: file.name });
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       const content = e.target?.result as string;
@@ -67,7 +83,9 @@ export class FileSelector extends React.Component<{ onDeckCreated: (deckId: stri
         await this.uploadDeckToFirebase(parsedData, file.name);
       } catch (error) {
         this.setState({
-          error: "Error processing file. Please ensure it's in the correct format." + error,
+          error:
+            "Error processing file. Please ensure it's in the correct format." +
+            error,
         });
       }
     };
@@ -81,19 +99,96 @@ export class FileSelector extends React.Component<{ onDeckCreated: (deckId: stri
 
   render() {
     return (
-      <div className="space-y-4">
-        <div className="flex flex-col items-center">
-          <input
-            type="file"
-            onChange={this.handleChange}
-            accept=".txt"
-            disabled={this.state.isLoading}
-            className="mb-4"
-          />
+      <div className="flex flex-col items-center w-full max-w-xl mx-auto">
+        {!this.state.selectedFileName ? (
+          <label className="w-full cursor-pointer">
+            <div className="border-2 border-dashed border-gray-400 rounded-lg p-8 hover:border-blue-500 transition-colors duration-200">
+              <div className="flex flex-col items-center space-y-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                <div className="text-center">
+                  <p className="text-lg font-semibold text-gray-300">
+                    Drop your deck file here
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    or click to select (.txt only)
+                  </p>
+                </div>
+              </div>
+            </div>
+            <input
+              type="file"
+              onChange={this.handleChange}
+              accept=".txt"
+              disabled={this.state.isLoading}
+              className="hidden"
+            />
+          </label>
+        ) : (
+          <div className="w-full rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <span className="text-lg font-medium">
+                  Deck Name: {this.state.selectedFileName}
+                </span>
+              </div>
+              {!this.state.isLoading && !this.state.success && (
+                <button
+                  onClick={() => this.setState({ selectedFileName: null })}
+                  className="text-sm text-gray-400 hover:text-gray-300"
+                >
+                  Change file
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
-          {this.state.isLoading && <div className="text-blue-600">Creating deck...</div>}
-          {this.state.error && <div className="text-red-600">{this.state.error}</div>}
-          {this.state.success && <div className="text-green-600">{this.state.success}</div>}
+        <div className="mt-4 w-full text-center">
+          {this.state.isLoading && (
+            <div className="flex items-center justify-center space-x-2 text-blue-400">
+              <div className="w-4 h-4 rounded-full border-2 border-b-transparent border-blue-400 animate-spin"></div>
+              <span>Creating deck...</span>
+            </div>
+          )}
+
+          {this.state.error && (
+            <div className="text-red-400 bg-red-900/20 rounded-lg p-3">
+              {this.state.error}
+            </div>
+          )}
+
+          {this.state.success && (
+            <div className="text-green-400 bg-green-900/20 rounded-lg p-3">
+              {this.state.success}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -133,21 +228,11 @@ function StartGame() {
   }, []);
 
   return (
-    <div>
-      <h2>Welcome to Start Game Page</h2>
-      {gameId && username ? (
-        <>
-          <p>Game ID: {gameId}</p>
-          <p>Username: {username}</p>
-        </>
-      ) : (
-        <p>Game and username are not available.</p>
-      )}
-      <p>Game will begin soon!</p>
-
-      {/* Pass the function to update deckId */}
+    <div className="flex flex-col items-center p-8 space-y-12">
+      <div className="py-4">
+        <h1 className="text-7xl font-bold">Game ID: {gameId}</h1>
+      </div>
       <FileSelector onDeckCreated={setDeckId} />
-
       {deckId && (
         <button
           className="text-white rounded-lg h-12 shadow-md hover:bg-gray-600"
@@ -156,6 +241,7 @@ function StartGame() {
           Start Gameplay
         </button>
       )}
+      <WaitingArea />
     </div>
   );
 }
