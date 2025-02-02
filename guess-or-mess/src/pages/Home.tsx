@@ -41,7 +41,7 @@ function Home() {
     try {
       const newGameId = await createNewGame();
       const playerID = await addPlayerToGame(formData.username, newGameId);
-      
+
       Cookies.set("username", formData.username, { expires: 1 });
       Cookies.set("gameId", newGameId, { expires: 1 });
       Cookies.set("playerId", playerID, { expires: 1 });
@@ -125,7 +125,10 @@ function Home() {
           />
 
           <div className="flex flex-row justify-between">
-            <button className="join-game-button mr-3" onClick={handleStartGame}>
+            <button
+              className="start-game-button mr-3"
+              onClick={handleStartGame}
+            >
               Start Game
             </button>
             <button

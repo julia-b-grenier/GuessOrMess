@@ -43,8 +43,19 @@ body {
   min-height: 100vh;
 }
 
+.start-game-button {
+  background: linear-gradient(to right, #17ee6c, #08b9c3);
+  color: white;
+  font-size: 18px;
+  padding: 0.5rem 2rem;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
 .join-game-button {
-  background: linear-gradient(to right, #08B9C3, #7236D2);
+  background: linear-gradient(to right, #08b9c3, #7236d2);
   color: white;
   font-size: 18px;
   padding: 0.5rem 2rem;
