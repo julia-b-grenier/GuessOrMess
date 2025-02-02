@@ -9,6 +9,7 @@ interface FlippingFlashcardProps {
   selected: number | null;
   correctIndex?: number;
   onSelect?: (index: number) => void;
+  isFlipped: boolean; 
 }
 
 const FlippingFlashcard: React.FC<FlippingFlashcardProps> = ({
@@ -17,26 +18,9 @@ const FlippingFlashcard: React.FC<FlippingFlashcardProps> = ({
   selected: propSelected,
   correctIndex,
   onSelect,
+  isFlipped,
 }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [countdown, setCountdown] = useState(10);
   const [selected, setSelected] = useState<number | null>(propSelected);
-
-  useEffect(() => {
-    if (countdown === 0) return;
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === 1) {
-          clearInterval(interval);
-          setIsFlipped(true);
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [countdown]);
 
   const handleSelect = (index: number) => {
     setSelected(index);
@@ -45,15 +29,12 @@ const FlippingFlashcard: React.FC<FlippingFlashcardProps> = ({
 
   return (
     <div>
-      {countdown > 0 && (
-        <p className="text-xl font-bold mt-4">You have {countdown} seconds to answer!</p>
-      )}
       <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
         <div className="card front text-center">
           <FlashCard
             question={question}
             options={options}
-            clickable={countdown > 0}
+            clickable={true}
             selected={selected}
             onSelect={handleSelect}
           />
