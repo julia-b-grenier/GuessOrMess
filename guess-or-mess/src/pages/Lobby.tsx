@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import GameCode from "../components/GameCode.tsx";
 
 const Lobby = () => {
   const { gameCode } = useParams<{ gameCode: string }>();
@@ -6,10 +7,8 @@ const Lobby = () => {
   return (
     <div>
       <div>
-        <h2>Game Lobby</h2>
-        <p className="text-gray-700">
-          Game Code: {gameCode}
-        </p>
+        <h1>Game Lobby</h1>
+        <GameCode textToCopy={gameCode ?? ""} />
       </div>
 
       {/* Placeholder sections for future lobby features */}
@@ -18,17 +17,13 @@ const Lobby = () => {
           <h3>Players</h3>
           <div>
             {/* Player list will go here */}
-            <p>
-              Waiting for players to join...
-            </p>
+            <p>Waiting for players to join...</p>
           </div>
         </div>
       </div>
 
       <div className="mt-6 text-center">
-        <button>
-          Start Game
-        </button>
+        <button>Start Game</button>
       </div>
     </div>
   );
