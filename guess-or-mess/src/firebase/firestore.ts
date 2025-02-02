@@ -202,10 +202,16 @@ export const listenToCurrentCard = (gameId: string, callback: (currentCard: numb
   return unsub;
 };
 
-export const incrementPlayerScore = async (gameId: string, playerId: string) => {
-  if (!playerId || !gameId) return;
+export const incrementPlayerScore = async (gameId: string, playerPath: string) => {
+  if (!playerPath) return;
 
-  const playerDocRef = doc(db, "games", gameId, "players", playerId);
+  const playerRefId = playerPath.split("/").pop(); // Extract the player ID
+  if (!playerRefId) {
+    console.error("Invalid player path:", playerPath);
+    return;
+  }
+
+  const playerDocRef = doc(db, "players", playerRefId);
 
   try {
     const playerDocSnap = await getDoc(playerDocRef);
@@ -219,7 +225,7 @@ export const incrementPlayerScore = async (gameId: string, playerId: string) => 
       score: increment(1),
     });
 
-    console.log(`Score updated for player ${playerId}`);
+    console.log(`Score updated for player ${playerRefId}`);
   } catch (error) {
     console.error("Error updating player score:", error);
   }
