@@ -38,6 +38,16 @@ const Player: React.FC<PlayerProps> = ({ name, disableEmojiChange = false }) => 
 
       {/* Full-screen emoji picker modal */}
       {isPickerOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <EmojiPicker onEmojiClick={handleEmojiChange} />
+            <button className="close-button" onClick={() => setIsPickerOpen(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* Full-screen emoji picker modal */}
+      {isPickerOpen && (
         <div className="emoji-picker-modal">
           <div className="emoji-picker-content">
             <EmojiPicker onEmojiClick={handleEmojiChange} />

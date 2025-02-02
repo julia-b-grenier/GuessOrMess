@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { createDeck } from "../firebase/firestore"; // Assuming you have this function
 import WaitingArea from "../components/WaitingArea"; // Assuming this component exists
 import * as cheerio from "cheerio";
+import GameCode from "../components/GameCode";
 
 // Define the structure of a Card
 interface Card {
@@ -249,7 +250,7 @@ function StartGame() {
   return (
     <div className="flex flex-col items-center p-8 space-y-12">
       <div className="py-4">
-        <h1 className="text-7xl font-bold">Game ID: {gameId}</h1>
+        <GameCode textToCopy={gameId ?? ""}></GameCode>
       </div>
 
       <div>

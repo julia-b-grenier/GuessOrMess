@@ -14,7 +14,7 @@ const GameCode: React.FC<GameCodeProps> = ({ textToCopy }) => {
 
   return (
     <div className="flex items-center justify-center space-x-3 p-3 rounded-lg">
-      <span className="text-lg font-semibold">{textToCopy}</span>
+      <span className="text-4xl font-bold">Game ID: {textToCopy}</span>
 
       <CopyToClipboard
         text={textToCopy}
