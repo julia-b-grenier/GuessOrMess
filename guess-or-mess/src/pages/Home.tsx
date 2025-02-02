@@ -15,15 +15,12 @@ function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ✅ Hook is inside component function
     Cookies.remove("username");
     Cookies.remove("gameId");
     Cookies.remove("playerId");
   }, []);
 
-  const handleInputChange = (e: {
-    target: { name: string; value: string };
-  }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -34,9 +31,9 @@ function Home() {
   const handleStartGame = async () => {
     if (formData.username.trim() === "") {
       setError("Username cannot be empty");
-      return; // Prevent starting the game if the username is empty
+      return;
     }
-    setError(null); // Clear the error if username is valid
+    setError(null);
 
     try {
       const newGameId = await createNewGame();
@@ -55,21 +52,16 @@ function Home() {
   const handleJoinGame = async () => {
     if (formData.username.trim() === "") {
       setError("Username cannot be empty");
-      return; // Prevent joining the game if the username is empty
+      return;
     }
-
     if (formData.gameCode.trim() === "") {
       setError("Game code cannot be empty");
-      return; // Prevent joining the game if the game code is empty
+      return;
     }
-
-    setError(null); // Clear the error if inputs are valid
+    setError(null);
 
     try {
-      const playerID = await addPlayerToGame(
-        formData.username,
-        formData.gameCode
-      ); // Use gameCode
+      const playerID = await addPlayerToGame(formData.username, formData.gameCode);
 
       Cookies.set("username", formData.username, { expires: 1 });
       Cookies.set("gameId", formData.gameCode, { expires: 1 });
@@ -77,11 +69,7 @@ function Home() {
 
       navigate(`/join-game`);
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
       console.error("Error joining game:", error);
     }
   };
