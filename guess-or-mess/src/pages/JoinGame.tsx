@@ -53,7 +53,6 @@ const JoinGame = () => {
         <div className="">
           <GameCode textToCopy={storedGameId ?? ""}></GameCode>
         </div>
-          Join Game
       </div>
 
       <div className="w-full">

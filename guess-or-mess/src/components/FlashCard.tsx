@@ -38,7 +38,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
 
               if (correctIndex !== undefined) {
                 bgColor =
-                  index === correctIndex ? "bg-green-500" : "bg-red-500";
+                  index === correctIndex ? "bg-gradient-to-r from-[#F7E641] to-[#17EE6C]" : "bg-gradient-to-r from-[#EE096E] to-[#3E27E9]";
               }
 
               return (
