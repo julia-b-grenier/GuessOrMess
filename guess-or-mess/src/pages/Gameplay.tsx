@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
 import FlippingFlashcard from "../components/Flipping_Flashcard.tsx";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCardsOfDeck, listenToCurrentCard, incrementCurrentCard, incrementPlayerScore } from "../firebase/firestore";
+import {
+  getCardsOfDeck,
+  listenToCurrentCard,
+  incrementCurrentCard,
+  incrementPlayerScore,
+} from "../firebase/firestore";
 import Cookies from "js-cookie";
+import splash from "./../assets/splash.svg";
+import waitSplash from "./../assets/wait-splash.svg";
 
 interface Card {
   question: string;
@@ -16,14 +23,17 @@ const Gameplay: React.FC = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [cachedAnswers, setCachedAnswers] = useState<{ [key: number]: { answers: string[]; correctIndex: number } }>({});
+  const [cachedAnswers, setCachedAnswers] = useState<{
+    [key: number]: { answers: string[]; correctIndex: number };
+  }>({});
   const playerId = Cookies.get("playerId");
 
-  const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  const pause = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
-    async function wait() {
-    await pause(1000); 
-    }
+  async function wait() {
+    await pause(1000);
+  }
 
   useEffect(() => {
     if (!deckId) {
@@ -49,10 +59,10 @@ const Gameplay: React.FC = () => {
     if (!gameId) return;
 
     const unsub = listenToCurrentCard(gameId, (currentCard) => {
-        setCurrentCardIndex(currentCard);
-        setSelectedAnswer(null); 
-        setIsFlipped(false);
-        wait()
+      setCurrentCardIndex(currentCard);
+      setSelectedAnswer(null);
+      setIsFlipped(false);
+      wait();
     });
 
     return () => unsub();
@@ -65,9 +75,9 @@ const Gameplay: React.FC = () => {
   }, [currentCardIndex, cards.length, gameId, navigate]);
 
   const handleNextCard = async () => {
-    setSelectedAnswer(null); 
+    setSelectedAnswer(null);
     setIsFlipped(false);
-    wait()
+    wait();
     if (!gameId) return;
     await incrementCurrentCard(gameId);
   };
@@ -94,9 +104,13 @@ const Gameplay: React.FC = () => {
     };
   }, [gameId]);
 
-  const getRandomAnswers = (cards: Card[], currentIndex: number, numOptions = 3) => {
+  const getRandomAnswers = (
+    cards: Card[],
+    currentIndex: number,
+    numOptions = 3
+  ) => {
     if (cachedAnswers[currentIndex]) {
-      return cachedAnswers[currentIndex]; 
+      return cachedAnswers[currentIndex];
     }
 
     const correctAnswer = cards[currentIndex].answer;
@@ -106,10 +120,15 @@ const Gameplay: React.FC = () => {
 
     const shuffledAnswers = otherAnswers.sort(() => Math.random() - 0.5);
     const incorrectAnswers = shuffledAnswers.slice(0, numOptions);
-    const allAnswers = [correctAnswer, ...incorrectAnswers].sort(() => Math.random() - 0.5);
+    const allAnswers = [correctAnswer, ...incorrectAnswers].sort(
+      () => Math.random() - 0.5
+    );
 
-    const answerData = { answers: allAnswers, correctIndex: allAnswers.indexOf(correctAnswer) };
-    setCachedAnswers((prev) => ({ ...prev, [currentIndex]: answerData })); 
+    const answerData = {
+      answers: allAnswers,
+      correctIndex: allAnswers.indexOf(correctAnswer),
+    };
+    setCachedAnswers((prev) => ({ ...prev, [currentIndex]: answerData }));
 
     return answerData;
   };
@@ -120,42 +139,59 @@ const Gameplay: React.FC = () => {
     }
   }, [currentCardIndex, cards]);
 
-  const { answers: answerOptions, correctIndex } = cachedAnswers[currentCardIndex] || {
+  const { answers: answerOptions, correctIndex } = cachedAnswers[
+    currentCardIndex
+  ] || {
     answers: ["Loading..."],
     correctIndex: -1,
   };
 
   const handleAnswerSelection = (index: number) => {
-    setSelectedAnswer(index); 
+    setSelectedAnswer(index);
     if (index === correctIndex && gameId && playerId) {
-      incrementPlayerScore(gameId, playerId); 
+      incrementPlayerScore(gameId, playerId);
     }
   };
 
   return (
-    <div className="App">
-      {cards.length > 0 && currentCardIndex < cards.length ? (
-        <>
-          <FlippingFlashcard
-            question={currentCard.question}
-            options={answerOptions}
-            clickable={!isFlipped}
-            selected={selectedAnswer} 
-            correctIndex={correctIndex}
-            onSelect={handleAnswerSelection} 
-            isFlipped={isFlipped}
-          />
-          {isFlipped && (
-            <div>
-              <button onClick={handleNextCard} className="join-game-button btn-next">
-                Next
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <p>Loading cards...</p>
-      )}
+    <div>
+      <img
+        src={splash}
+        alt="Splash"
+        className="absolute top-0 right-3 w-100 h-80 p-0 -z-1"
+      />
+      <img
+        src={waitSplash}
+        alt="Wait Splash"
+        className="absolute bottom-0 left-4 w-70 h-70 p-0 -z-1"
+      />
+      <div className="App">
+        {cards.length > 0 && currentCardIndex < cards.length ? (
+          <>
+            <FlippingFlashcard
+              question={currentCard.question}
+              options={answerOptions}
+              clickable={!isFlipped}
+              selected={selectedAnswer}
+              correctIndex={correctIndex}
+              onSelect={handleAnswerSelection}
+              isFlipped={isFlipped}
+            />
+            {isFlipped && (
+              <div>
+                <button
+                  onClick={handleNextCard}
+                  className="join-game-button btn-next"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p>Loading cards...</p>
+        )}
+      </div>
     </div>
   );
 };
