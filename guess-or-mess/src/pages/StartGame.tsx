@@ -117,7 +117,9 @@ const parseAnkiDeck = (deckData: string) => {
 function StartGame() {
   const navigate = useNavigate();
   const handleGameplay = () => {
-    navigate(`/gameplay/${deckId}`);
+    if (gameId) {
+      navigate(`/gameplay/${deckId}/${gameId}`);
+    }
   };
 
   const [gameId, setGameId] = useState<string | null>(null);
@@ -145,7 +147,6 @@ function StartGame() {
       )}
       <p>Game will begin soon!</p>
 
-      {/* Pass the function to update deckId */}
       <FileSelector onDeckCreated={setDeckId} />
 
       {deckId && (
