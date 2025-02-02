@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FlippingFlashcard from "../components/Flipping_Flashcard.tsx";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getCardsOfDeck, listenToCurrentCard, incrementCurrentCard } from "../firebase/firestore";
 
 interface Card {
@@ -13,7 +13,6 @@ const Gameplay: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!deckId) {
@@ -73,14 +72,6 @@ const Gameplay: React.FC = () => {
       }
     };
   }, [gameId]);
-
-  const handleNavigate = () => {
-    // Increment card before navigation
-    if (gameId && deckId) {
-      incrementCurrentCard(gameId);
-      navigate(`/gameplay/${deckId}/${gameId}`);
-    }
-  };
 
   return (
     <div className="App">
