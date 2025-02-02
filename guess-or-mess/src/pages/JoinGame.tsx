@@ -52,7 +52,7 @@ const JoinGame = () => {
       <div className="flex flex-row justify-start w-full">
         <div className="">
           <GameCode textToCopy={storedGameId ?? ""}></GameCode>
-        </div>      
+        </div>
       </div>
 
       <div className="w-full">

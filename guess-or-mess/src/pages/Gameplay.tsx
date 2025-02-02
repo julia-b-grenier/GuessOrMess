@@ -147,7 +147,7 @@ const Gameplay: React.FC = () => {
           />
           {isFlipped && (
             <div>
-              <button onClick={handleNextCard} className="btn-next">
+              <button onClick={handleNextCard} className="join-game-button btn-next">
                 Next
               </button>
             </div>
