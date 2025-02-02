@@ -1,7 +1,7 @@
 // src/firestore.ts
 import { Card, Deck } from "../types/game";
 import { db } from "./firebase";
-import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBatch, increment, onSnapshot} from "firebase/firestore";
+import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBatch, increment, onSnapshot } from "firebase/firestore";
 
 export const createNewGame = async () => {
   const generateGameId = () => {
@@ -27,10 +27,10 @@ export const createNewGame = async () => {
 
 export const getPlayersInGame = (gameId: string, callback: (players: any[]) => void) => {
   const gameRef = doc(db, "games", gameId);
-  
+
   const unsubscribe = onSnapshot(gameRef, (gameSnap) => {
     if (!gameSnap.exists()) {
-      callback([]); 
+      callback([]);
       return;
     }
 
@@ -44,15 +44,15 @@ export const getPlayersInGame = (gameId: string, callback: (players: any[]) => v
         if (playerSnap.exists()) {
           return playerSnap.data();
         }
-        return null; 
+        return null;
       })
     )
       .then((playersData) => {
-        callback(playersData.filter((player) => player !== null)); 
+        callback(playersData.filter((player) => player !== null));
       })
       .catch((err) => {
         console.error("Failed to fetch player data", err);
-        callback([]); 
+        callback([]);
       });
   });
 
@@ -73,7 +73,7 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
     gameData.players = [];
   }
 
-  const existingPlayersRef = gameData.players; 
+  const existingPlayersRef = gameData.players;
 
   for (const playerPath of existingPlayersRef) {
     const playerDoc = await getDoc(doc(db, playerPath));
@@ -91,7 +91,7 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
 
 
   await updateDoc(gameRef, {
-    players: arrayUnion(playerRef.path), 
+    players: arrayUnion(playerRef.path),
   });
 
   return playerRef.path;
@@ -129,7 +129,7 @@ export const createDeck = async (cards: Card[], deckName: string, gameId: string
 
 
   await updateDoc(gameDocRef, {
-    deck: deckDocRef.id, 
+    deck: deckDocRef.id,
   });
 
   return deckDocRef.id;
@@ -146,7 +146,7 @@ export const getCardsOfDeck = async (deckId: string) => {
 
   const deckData = deckDocSnap.data();
   console.log(deckData)
-  
+
   if (!deckData || !deckData.cardRefs || deckData.cardRefs.length === 0) {
     throw new Error("No cards in this deck");
   }
@@ -157,7 +157,7 @@ export const getCardsOfDeck = async (deckId: string) => {
 
     if (cardDocSnap.exists()) {
       console.log(cardDocSnap.data())
-      return cardDocSnap.data(); 
+      return cardDocSnap.data();
     } else {
       console.error(`Card with ID ${cardRefId} not found.`);
       return null;
@@ -185,7 +185,7 @@ export const getCurrentCard = async (gameId: string) => {
   }
 
   const gameData = gameSnap.data();
-  return gameData?.currentCard || 0; 
+  return gameData?.currentCard || 0;
 };
 
 export const listenToCurrentCard = (gameId: string, callback: (currentCard: number) => void) => {
@@ -195,7 +195,7 @@ export const listenToCurrentCard = (gameId: string, callback: (currentCard: numb
     const gameData = doc.data();
     if (gameData) {
       const currentCard = gameData.currentCard || 0;
-      callback(currentCard); 
+      callback(currentCard);
     }
   });
 
@@ -216,7 +216,7 @@ export const incrementPlayerScore = async (gameId: string, playerId: string) => 
     }
 
     await updateDoc(playerDocRef, {
-      score: increment(1), 
+      score: increment(1),
     });
 
     console.log(`Score updated for player ${playerId}`);
@@ -224,3 +224,24 @@ export const incrementPlayerScore = async (gameId: string, playerId: string) => 
     console.error("Error updating player score:", error);
   }
 };
+
+export const fetchLeaderboard = async (gameId: string) => {
+  const gameDocRef = doc(db, 'games', gameId);
+  const gameDocSnap = await getDoc(gameDocRef);
+
+  if (!gameDocSnap.exists()) {
+    throw new Error("Game not found");
+  }
+
+  const gameData = gameDocSnap.data();
+
+  if (Array.isArray(gameData.players)) {
+    // Sort players by descending score
+    const sortedPlayers = [...gameData.players].sort(
+      (a, b) => b.score - a.score
+    );
+
+    const players = await Promise.all(sortedPlayers);
+    return players.filter(player => player !== null);
+  }
+}

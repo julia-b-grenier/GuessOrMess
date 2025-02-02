@@ -1,16 +1,14 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { fetchLeaderboard } from "../firebase/firestore";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { Player } from "../types/game";
-
-const dummyPlayers: Player[] = [
-  { username: "Tayba", score: 1250 },
-  { username: "Julia", score: 980 },
-  { username: "Sahar", score: 875 },
-  { username: "James", score: 800 },
-  { username: "Your Mom", score: 750 }
-];
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const Leaderboard = () => {
+  const { gameId } = useParams<{ gameId: string }>();
+  const [players, setPlayers] = useState<Player[]>([]);
   const podiumOrder = [1, 0, 2] as const;
 
   const trophyColors = {
@@ -25,8 +23,28 @@ const Leaderboard = () => {
     2: "from-[#33F3F8] to-[#F7E641]", // Bronze gradient
   } as const;
 
+  useEffect(() => {
+    if (!gameId) {
+      console.error("No game ID provided.");
+      return;
+    }
+
+    const getTopPlayers = async () => {
+      try {
+        const gamePlayers = await fetchLeaderboard(gameId);
+        setPlayers(
+          (gamePlayers || []).filter((player: Player | null) => player !== null)
+        );
+      } catch (error) {
+        console.error("Error fetching top players.");
+      }
+    };
+
+    getTopPlayers();
+  }, [gameId]);
+
   // Get remaining players (4th place onwards)
-  const remainingPlayers = dummyPlayers.slice(3);
+  const remainingPlayers = players.slice(3);
 
   return (
     <div className="w-full mx-auto p-8">
@@ -35,7 +53,7 @@ const Leaderboard = () => {
       {/* Podium Section */}
       <div className="flex justify-center items-end gap-4 h-96 mb-8">
         {podiumOrder.map((position) => {
-          const player = dummyPlayers[position];
+          const player = players[position];
           if (!player) return null;
 
           return (
@@ -53,7 +71,9 @@ const Leaderboard = () => {
                 transition={{ delay: position * 0.2 + 0.3, type: "spring" }}
               >
                 <EmojiEventsRoundedIcon
-                  sx={{ color: trophyColors[position as keyof typeof trophyColors] }}
+                  sx={{
+                    color: trophyColors[position as keyof typeof trophyColors],
+                  }}
                   fontSize="large"
                 />
                 <span className="text-lg font-semibold mb-1">
@@ -72,7 +92,9 @@ const Leaderboard = () => {
               <motion.div
                 className={`w-24 ${
                   position === 0 ? "h-64" : position === 1 ? "h-48" : "h-32"
-                } bg-gradient-to-t ${podiumGradients[position as keyof typeof podiumGradients]} rounded-t-lg shadow-lg`}
+                } bg-gradient-to-t ${
+                  podiumGradients[position as keyof typeof podiumGradients]
+                } rounded-t-lg shadow-lg`}
                 initial={{ height: 0 }}
                 animate={{
                   height: position === 0 ? 256 : position === 1 ? 192 : 128,

@@ -16,7 +16,7 @@ function App() {
         <Route path="/gameplay/:deckId/:gameId" element={<Gameplay />} /> 
         <Route path="/join-game" element={<JoinGame />} />
         <Route path="/lobby/:gameCode" element={<Lobby />} />
-        <Route path="/leaderboard" element={<Leaderboard />}></Route>
+        <Route path="/leaderboard/:gameCode" element={<Leaderboard />}></Route>
       </Routes>
     </Router>
   );
