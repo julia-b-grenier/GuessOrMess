@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import FlippingFlashcard from "../components/Flipping_Flashcard.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -27,6 +27,8 @@ const Gameplay: React.FC = () => {
     [key: number]: { answers: string[]; correctIndex: number };
   }>({});
   const playerId = Cookies.get("playerId");
+  const [timeLeft, setTimeLeft] = useState(10); // 10 seconds countdown
+  const flipTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const pause = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
@@ -83,10 +85,29 @@ const Gameplay: React.FC = () => {
   };
 
   const handleFlipTimer = () => {
-    setTimeout(() => {
-      setIsFlipped(true);
-    }, 10000);
+    setTimeLeft(10); // Reset timer to 10 seconds
+
+    if (flipTimerRef.current) clearInterval(flipTimerRef.current);
+
+    flipTimerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(flipTimerRef.current!);
+          setIsFlipped(true); // Flip the card when timer reaches 0
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
+
+  useEffect(() => {
+    handleFlipTimer(); // Start the timer when a new card appears
+
+    return () => {
+      if (flipTimerRef.current) clearInterval(flipTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (cards.length > 0 && currentCardIndex < cards.length && !isFlipped) {
@@ -165,9 +186,10 @@ const Gameplay: React.FC = () => {
         alt="Wait Splash"
         className="absolute bottom-0 left-4 w-70 h-70 p-0 -z-1"
       />
-      <div className="App">
+      <div className="">
         {cards.length > 0 && currentCardIndex < cards.length ? (
           <>
+            <h1 className="text-5xl font-bold">{timeLeft}</h1>
             <FlippingFlashcard
               question={currentCard.question}
               options={answerOptions}
