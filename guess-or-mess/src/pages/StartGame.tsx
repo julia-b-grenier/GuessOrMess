@@ -212,7 +212,9 @@ const parseAnkiDeck = (deckData: string) => {
 function StartGame() {
   const navigate = useNavigate();
   const handleGameplay = () => {
-    navigate(`/gameplay/${deckId}`);
+    if (gameId) {
+      navigate(`/gameplay/${deckId}/${gameId}`);
+    }
   };
 
   const [gameId, setGameId] = useState<string | null>(null);
@@ -227,23 +229,49 @@ function StartGame() {
     setUsername(storedUsername || null);
   }, []);
 
+  
   return (
     <div className="flex flex-col items-center p-8 space-y-12">
       <div className="py-4">
         <h1 className="text-7xl font-bold">Game ID: {gameId}</h1>
       </div>
-      <FileSelector onDeckCreated={setDeckId} />
-      {deckId && (
-        <button
-          className="text-white rounded-lg h-12 shadow-md hover:bg-gray-600"
-          onClick={handleGameplay}
-        >
-          Start Gameplay
-        </button>
-      )}
-      <WaitingArea />
+      
+      <div>
+        <h2>Welcome to Start Game Page</h2>
+  
+        {/* Conditional rendering for Game ID and Username */}
+        {gameId && username ? (
+          <>
+            <p>Game ID: {gameId}</p>
+            <p>Username: {username}</p>
+          </>
+        ) : (
+          <p>Game and username are not available.</p>
+        )}
+  
+        <p>Game will begin soon!</p>
+  
+        {/* FileSelector Component */}
+        <FileSelector onDeckCreated={setDeckId} />
+        
+        {/* Only show this button if deckId is available */}
+        {deckId && (
+          <button
+            className="text-white rounded-lg h-12 shadow-md hover:bg-gray-600"
+            onClick={handleGameplay}
+          >
+            Start Gameplay
+          </button>
+        )}
+  
+        {/* WaitingArea component */}
+        <WaitingArea />
+      </div>
     </div>
   );
+  
+
+
 }
 
 export default StartGame;

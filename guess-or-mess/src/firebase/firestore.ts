@@ -1,7 +1,7 @@
 // src/firestore.ts
 import { Card, Deck } from "../types/game";
 import { db } from "./firebase";
-import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBatch } from "firebase/firestore";
+import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBatch, increment, onSnapshot} from "firebase/firestore";
 
 export const createNewGame = async () => {
   // Generate gameId that is a 5 alphanumerical code
@@ -20,6 +20,7 @@ export const createNewGame = async () => {
   await setDoc(gameRef, {
     deck: null,
     players: [],
+    currentCard: 0,
   });
 
   return gameId;
@@ -154,3 +155,36 @@ export const getCardsOfDeck = async (deckId: string) => {
 
   return cards.filter(card => card !== null);
 }
+
+export const incrementCurrentCard = async (gameId: string) => {
+  const gameRef = doc(db, "games", gameId);
+  await updateDoc(gameRef, {
+    currentCard: increment(1),
+  });
+};
+
+export const getCurrentCard = async (gameId: string) => {
+  const gameRef = doc(db, "games", gameId);
+  const gameSnap = await getDoc(gameRef);
+
+  if (!gameSnap.exists()) {
+    throw new Error(`Game ${gameId} not found`);
+  }
+
+  const gameData = gameSnap.data();
+  return gameData?.currentCard || 0; 
+};
+
+export const listenToCurrentCard = (gameId: string, callback: (currentCard: number) => void) => {
+  const gameRef = doc(db, "games", gameId);
+
+  const unsub = onSnapshot(gameRef, (doc) => {
+    const gameData = doc.data();
+    if (gameData) {
+      const currentCard = gameData.currentCard || 0;
+      callback(currentCard); 
+    }
+  });
+
+  return unsub;
+};
