@@ -18,7 +18,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #262626;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -48,31 +48,15 @@ body {
   color: white;
   font-size: 18px;
   font-weight: bold;
-  padding: 12px 24px;
+  padding: 12px 54px;
   border: none;
-  border-radius: 8px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  position: relative;
-}
-.join-game-button::before {
-  content: "";
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  right: 5px;
-  bottom: 5px;
-  background: linear-gradient(to right, #4a90e2, #9b59b6);
-  border-radius: 8px;
-  z-index: -1;
-  filter: blur(10px);
-  opacity: 0.7;
 }
 
 .join-game-button:active {
   transform: translateY(4px);
-  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.5),
-    0 5px 15px rgba(155, 89, 182, 0.5);
 }
 
 .neon-input {
@@ -80,14 +64,12 @@ body {
   padding: 10px 15px;
   border: 2px solid transparent;
   border-radius: 20px; /* Rounded corners */
-  background-color: #000;
+  background-color: #4a4a4a66;
   color: white;
   font-size: 1.2rem;
   outline: none;
-  box-shadow: 0 0 10px 2px rgb(8, 186, 195); /* Neon glow */
 }
 
 /* Focus effect to make the border glow even brighter */
 .neon-input:focus {
-  box-shadow: 0 0 20px 3px rgba(114, 54, 210); /* Brighter neon glow */
 }

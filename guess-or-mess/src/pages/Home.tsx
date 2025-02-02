@@ -10,18 +10,16 @@ function Home() {
     username: "",
     gameCode: "",
   });
-  const [error, setError] = useState<string | null>("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Remove cookies when the page is refreshed
+    // ✅ Hook is inside component function
     Cookies.remove("username");
     Cookies.remove("gameId");
     Cookies.remove("playerId");
   }, []);
 
-  const handleInputChange = (e: {
-    target: { name: string; value: string };
-  }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -32,9 +30,9 @@ function Home() {
   const handleStartGame = async () => {
     if (formData.username.trim() === "") {
       setError("Username cannot be empty");
-      return; // Prevent starting the game if the username is empty
+      return;
     }
-    setError(null); // Clear the error if username is valid
+    setError(null);
 
     try {
       const newGameId = await createNewGame();
@@ -53,21 +51,16 @@ function Home() {
   const handleJoinGame = async () => {
     if (formData.username.trim() === "") {
       setError("Username cannot be empty");
-      return; // Prevent joining the game if the username is empty
+      return;
     }
-
     if (formData.gameCode.trim() === "") {
       setError("Game code cannot be empty");
-      return; // Prevent joining the game if the game code is empty
+      return;
     }
-
-    setError(null); // Clear the error if inputs are valid
+    setError(null);
 
     try {
-      const playerID = await addPlayerToGame(
-        formData.username,
-        formData.gameCode
-      ); // Use gameCode
+      const playerID = await addPlayerToGame(formData.username, formData.gameCode);
 
       Cookies.set("username", formData.username, { expires: 1 });
       Cookies.set("gameId", formData.gameCode, { expires: 1 });
@@ -75,11 +68,7 @@ function Home() {
 
       navigate(`/join-game`);
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
       console.error("Error joining game:", error);
     }
   };
@@ -89,46 +78,38 @@ function Home() {
       <h1 className="text-7xl font-bold mb-10 mt-10">
         GUESS OR <span className="custom-font text-9xl">MESS</span>
       </h1>
-      <div className="w-full max-w-md space-y-6">
-        <div className="flex flex-col items-center space-y-2">
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            placeholder="Enter your username"
-            className="rounded-lg w-full neon-input"
-          />
-          <div
-            style={{
-              visibility: error ? "visible" : "hidden",
-              color: "red",
-              margin: "10px",
-            }}
-          >
-            {error}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-row gap-x-8">
-        <div>
+      <div className="w-full max-w-md space-y-10">
+        {error && <div style={{ color: "red" }}>{error}</div>}
+
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleInputChange}
+          placeholder="Enter your username"
+          className="rounded-lg w-full neon-input"
+        />
+
+        <div className="flex flex-row justify-between">
           <button className="join-game-button" onClick={handleStartGame}>
             Start Game
           </button>
-        </div>
-        <div>
-          <button className="join-game-button" onClick={handleJoinGame}>Join Game</button>
-          <label>Game Code:</label>
-          <input
-            type="text"
-            name="gameCode"
-            value={formData.gameCode}
-            onChange={handleInputChange}
-            placeholder="Game Code"
-            className="neon-input"
-          />
+          <button className="join-game-button" onClick={handleJoinGame}>
+            Join Game
+          </button>
         </div>
       </div>
+        <input
+          type="text"
+          name="gameCode"
+          value={formData.gameCode}
+          onChange={handleInputChange}
+          placeholder="Game Code"
+          className="neon-input"
+        />
+        <button className="join-game-button mt-4" onClick={handleJoinGame}>
+          Join
+        </button>
     </div>
   );
 }
