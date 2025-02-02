@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createNewGame, addPlayerToGame } from "../firebase/firestore";
 import Cookies from "js-cookie";
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import splash from './../assets/splash.svg'
 
 function Home() {
   const navigate = useNavigate();
@@ -10,10 +12,10 @@ function Home() {
     username: "",
     gameCode: "",
   });
-  const [error, setError] = useState<string | null>("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Remove cookies when the page is refreshed
+    // ✅ Hook is inside component function
     Cookies.remove("username");
     Cookies.remove("gameId");
     Cookies.remove("playerId");
@@ -85,52 +87,42 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h1 className="text-8xl font-bold mb-10">
-        GUESS OR <span className="custom-font text-8xl">MESS</span>
+    <div className="flex flex-col items-center">
+      <h1 className="text-7xl font-bold mb-10 mt-10">
+        GUESS OR <span className="custom-font text-9xl">MESS</span>
       </h1>
-      <div className="w-full max-w-md space-y-6">
-        <div className="flex flex-col items-center space-y-2">
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            placeholder="Enter your username"
-            className="p-3 rounded-lg w-full neon-input"
-          />
-          <div
-            style={{
-              visibility: error ? "visible" : "hidden",
-              color: "red",
-              margin: "10px",
-            }}
-          >
-            {error}
-          </div>
-        </div>
-      </div>
-      <div
-        style={{
-          visibility: error ? "visible" : "hidden",
-          color: "red",
-          margin: "10px",
-        }}
-      >
-        {error}
-      </div>
-      <div className="flex flex-row gap-x-8">
-        <div>
+      <div className="w-full max-w-md space-y-10">
+        {error && <div style={{ color: "red" }}>{error}</div>}
+
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleInputChange}
+          placeholder="Enter your username"
+          className="rounded-lg w-full neon-input"
+        />
+
+        <div className="flex flex-row justify-between">
           <button className="join-game-button" onClick={handleStartGame}>
             Start Game
           </button>
-        </div>
-        <div>
           <button className="join-game-button" onClick={handleJoinGame}>
             Join Game
           </button>
         </div>
       </div>
+        <input
+          type="text"
+          name="gameCode"
+          value={formData.gameCode}
+          onChange={handleInputChange}
+          placeholder="Game Code"
+          className="neon-input"
+        />
+        <button className="join-game-button mt-4" onClick={handleJoinGame}>
+          Join
+        </button>
     </div>
   );
 }
