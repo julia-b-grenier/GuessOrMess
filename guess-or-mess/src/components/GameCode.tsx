@@ -13,8 +13,8 @@ const GameCode: React.FC<GameCodeProps> = ({ textToCopy }) => {
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="flex items-center justify-center space-x-3 p-3 rounded-lg">
-      <span className="text-4xl font-bold">Game ID: {textToCopy}</span>
+    <div className="flex justify-center md:items-start sm:justify-start space-x-3 rounded-lg p-0">
+      <span className="text-3xl font-bold">Game ID: {textToCopy}</span>
 
       <CopyToClipboard
         text={textToCopy}
