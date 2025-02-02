@@ -12,12 +12,6 @@ interface Card {
   answer: string; // Assuming answer is a single answer for simplicity
 }
 
-interface Deck {
-  name: string;
-  cardRefs: string[];
-  totalCards: number;
-}
-
 interface FileState {
   fileContent: string;
   isLoading: boolean;
