@@ -245,20 +245,22 @@ function StartGame() {
       <img
         src={waitSplash}
         alt="Wait Splash"
-        className="absolute bottom-0 left-4 w-70 h-70 p-0"
+        className="absolute bottom-0 left-4 w-70 h-70 p-0 -z-1"
       />
-      <div className="flex flex-col items-center p-8 space-y-12 max-w-4xl mx-auto relative">
-        <div className="flex flex-row justify-start w-full">
-          <div className="">
+      <div className="flex flex-col items-center p-8 space-y-12 max-w-4xl mx-auto">
+        <div className="flex flex-row flex-wrap justify-center sm:justify-between items-center w-full gap-y-2">
+          <div className="min-w-sm">
             <GameCode textToCopy={gameId ?? ""}></GameCode>
           </div>
-          <button
-            className="join-game-button ml-auto disabled:opacity-20"
-            onClick={handleGameplay}
-            disabled={!deckId}
-          >
-            Start Gameplay
-          </button>
+          <div className="my-auto min-w-5">
+            <button
+              className="join-game-button disabled:opacity-20"
+              onClick={handleGameplay}
+              disabled={!deckId}
+            >
+              Start Gameplay
+            </button>
+          </div>
         </div>
 
         <div className="w-full">

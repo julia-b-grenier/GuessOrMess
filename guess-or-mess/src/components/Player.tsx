@@ -25,7 +25,7 @@ const Player: React.FC<PlayerProps> = ({ name, disableEmojiChange = false }) => 
   };
 
   return (
-    <div className="player-container">
+    <div className="">
       <div className="emoji-selector">
         <div 
           onClick={togglePicker} 
