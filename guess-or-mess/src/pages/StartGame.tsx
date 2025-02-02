@@ -15,7 +15,10 @@ interface FileState {
   selectedFileName: string | null;
 }
 
-export class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => void }, FileState> {
+export class FileSelector extends React.Component<
+  { onDeckCreated: (deckId: string) => void },
+  FileState
+> {
   constructor(props: { onDeckCreated: (deckId: string) => void }) {
     super(props);
     this.state = {
@@ -34,7 +37,10 @@ export class FileSelector extends React.Component<{ onDeckCreated: (deckId: stri
     const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
 
     try {
-      const deckId = await createDeck(shuffledCards, filename.replace(".txt", ""));
+      const deckId = await createDeck(
+        shuffledCards,
+        filename.replace(".txt", "")
+      );
       this.setState({
         isLoading: false,
         success: `Deck successfully created with ID: ${deckId}`,
@@ -226,7 +232,15 @@ function StartGame() {
       <div className="py-4">
         <h1 className="text-7xl font-bold">Game ID: {gameId}</h1>
       </div>
-      <FileSelector />
+      <FileSelector onDeckCreated={setDeckId} />
+      {deckId && (
+        <button
+          className="text-white rounded-lg h-12 shadow-md hover:bg-gray-600"
+          onClick={handleGameplay}
+        >
+          Start Gameplay
+        </button>
+      )}
       <WaitingArea />
     </div>
   );
