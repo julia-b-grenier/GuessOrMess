@@ -112,10 +112,12 @@ function Home() {
       </div>
       <div className="flex flex-row gap-x-8">
         <div>
-          <button onClick={handleStartGame}>Start Game</button>
+          <button className="join-game-button" onClick={handleStartGame}>
+            Start Game
+          </button>
         </div>
         <div>
-          <button onClick={handleJoinGame}>Join Game</button>
+          <button className="join-game-button" onClick={handleJoinGame}>Join Game</button>
           <label>Game Code:</label>
           <input
             type="text"
