@@ -48,7 +48,10 @@ const Gameplay: React.FC = () => {
     if (!gameId) return;
 
     const unsub = listenToCurrentCard(gameId, (currentCard) => {
-      setCurrentCardIndex(currentCard);
+        setCurrentCardIndex(currentCard);
+        setSelectedAnswer(null); 
+        setIsFlipped(false);
+        wait()
     });
 
     return () => unsub();

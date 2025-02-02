@@ -5,12 +5,12 @@ import { listenToCurrentCard } from "../firebase/firestore"; // Assuming this fu
 import WaitingArea from '../components/WaitingArea';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import GameCode from "../components/GameCode";
 
 const JoinGame = () => {
   const navigate = useNavigate();
   const [currentCard, setCurrentCard] = useState<number>(-1); // Start at -1 as per your requirement
   const [deckId, setDeckId] = useState<string | null>(null);
-  const storedUsername = Cookies.get('username');
   const storedGameId = Cookies.get('gameId');
 
   useEffect(() => {
@@ -46,12 +46,21 @@ const JoinGame = () => {
     }
   }, [deckId, currentCard, storedGameId, navigate]);
 
+  
   return (
-    <div>
-      <h2>
-        Welcome to the Join Game Page {storedUsername}
-      </h2>
-      <WaitingArea />
+    <div className="flex flex-col items-center p-8 space-y-12 max-w-4xl mx-auto">
+      <div className="flex flex-row justify-start w-full">
+        <div className="">
+          <GameCode textToCopy={storedGameId ?? ""}></GameCode>
+        </div>
+          Join Game
+      </div>
+
+      <div className="w-full">
+        <div className="mb-5 w-100%">
+          <WaitingArea />
+        </div>
+      </div>
     </div>
   );
 };
