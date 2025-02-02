@@ -41,7 +41,7 @@ function Home() {
     try {
       const newGameId = await createNewGame();
       const playerID = await addPlayerToGame(formData.username, newGameId);
-
+      
       Cookies.set("username", formData.username, { expires: 1 });
       Cookies.set("gameId", newGameId, { expires: 1 });
       Cookies.set("playerId", playerID, { expires: 1 });

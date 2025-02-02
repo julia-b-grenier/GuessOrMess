@@ -4,7 +4,6 @@ import { db } from "./firebase";
 import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBatch, increment, onSnapshot} from "firebase/firestore";
 
 export const createNewGame = async () => {
-  // Generate gameId that is a 5 alphanumerical code
   const generateGameId = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let gameId = '';
@@ -29,16 +28,14 @@ export const createNewGame = async () => {
 export const getPlayersInGame = (gameId: string, callback: (players: any[]) => void) => {
   const gameRef = doc(db, "games", gameId);
   
-  // Listen for real-time updates to the game document
   const unsubscribe = onSnapshot(gameRef, (gameSnap) => {
     if (!gameSnap.exists()) {
-      callback([]); // If the game doesn't exist, return an empty array
+      callback([]); 
       return;
     }
 
     const playersRefPaths = gameSnap.data().players || [];
 
-    // Fetch player data for each player reference path
     Promise.all(
       playersRefPaths.map(async (playerRefPath: string) => {
         const playerRef = doc(db, playerRefPath);
@@ -47,25 +44,23 @@ export const getPlayersInGame = (gameId: string, callback: (players: any[]) => v
         if (playerSnap.exists()) {
           return playerSnap.data();
         }
-        return null; // Handle if player data doesn't exist
+        return null; 
       })
     )
       .then((playersData) => {
-        callback(playersData.filter((player) => player !== null)); // Return valid players
+        callback(playersData.filter((player) => player !== null)); 
       })
       .catch((err) => {
         console.error("Failed to fetch player data", err);
-        callback([]); // If there is an error, return an empty array
+        callback([]); 
       });
   });
 
-  // Return unsubscribe function to stop the listener when the component is unmounted
   return unsubscribe;
 };
 
 
 export const addPlayerToGame = async (username: string, gameId: string) => {
-  // Check if the game exists before adding a player
   const gameRef = doc(db, "games", gameId);
   const gameSnap = await getDoc(gameRef);
 
@@ -78,10 +73,8 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
     gameData.players = [];
   }
 
-  // Check if the username is already in the game's players array
-  const existingPlayersRef = gameData.players; // List of player document paths
+  const existingPlayersRef = gameData.players; 
 
-  // Fetch each player's document to check usernames
   for (const playerPath of existingPlayersRef) {
     const playerDoc = await getDoc(doc(db, playerPath));
     if (playerDoc.exists() && playerDoc.data().username === username) {
@@ -89,18 +82,16 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
     }
   }
 
-  // Create a reference to the players collection
   const playersCollectionRef = collection(db, "players");
 
-  // Add the new player document with Firestore's auto-generated ID
   const playerRef = await addDoc(playersCollectionRef, {
     username: username,
     score: 0,
   });
 
-  // Update the game document by adding the player's reference to the players array
+
   await updateDoc(gameRef, {
-    players: arrayUnion(playerRef.path), // Add the player's path reference to the game document
+    players: arrayUnion(playerRef.path), 
   });
 
   return playerRef.path;
@@ -127,7 +118,7 @@ export const createDeck = async (cards: Card[], deckName: string, gameId: string
 
   batch.set(deckDocRef, newDeck);
 
-  await batch.commit(); // Commit the batch before updating the game doc
+  await batch.commit();
 
   const gameDocRef = doc(db, "games", gameId);
   const gameDocSnap = await getDoc(gameDocRef);
@@ -136,9 +127,9 @@ export const createDeck = async (cards: Card[], deckName: string, gameId: string
     throw new Error("Game not found.");
   }
 
-  // Update the game document to store only the deck ID
+
   await updateDoc(gameDocRef, {
-    deck: deckDocRef.id, // Store the deck ID instead of the reference
+    deck: deckDocRef.id, 
   });
 
   return deckDocRef.id;
@@ -209,4 +200,27 @@ export const listenToCurrentCard = (gameId: string, callback: (currentCard: numb
   });
 
   return unsub;
+};
+
+export const incrementPlayerScore = async (gameId: string, playerId: string) => {
+  if (!playerId || !gameId) return;
+
+  const playerDocRef = doc(db, "games", gameId, "players", playerId);
+
+  try {
+    const playerDocSnap = await getDoc(playerDocRef);
+
+    if (!playerDocSnap.exists()) {
+      console.error("Player document not found.");
+      return;
+    }
+
+    await updateDoc(playerDocRef, {
+      score: increment(1), 
+    });
+
+    console.log(`Score updated for player ${playerId}`);
+  } catch (error) {
+    console.error("Error updating player score:", error);
+  }
 };
