@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactCardFlip from "react-card-flip";
 import FlashCard from "./FlashCard";
 
@@ -9,7 +9,7 @@ interface FlippingFlashcardProps {
   selected: number | null;
   correctIndex?: number;
   onSelect?: (index: number) => void;
-  isFlipped: boolean; 
+  isFlipped: boolean;
 }
 
 const FlippingFlashcard: React.FC<FlippingFlashcardProps> = ({
@@ -22,9 +22,13 @@ const FlippingFlashcard: React.FC<FlippingFlashcardProps> = ({
 }) => {
   const [selected, setSelected] = useState<number | null>(propSelected);
 
+  useEffect(() => {
+    setSelected(propSelected);
+  }, [propSelected, question]);
+
   const handleSelect = (index: number) => {
     setSelected(index);
-    if (onSelect) onSelect(index);
+    onSelect?.(index);
   };
 
   return (
@@ -39,7 +43,6 @@ const FlippingFlashcard: React.FC<FlippingFlashcardProps> = ({
             onSelect={handleSelect}
           />
         </div>
-
         <div className="card back text-center">
           <FlashCard
             question={question}
