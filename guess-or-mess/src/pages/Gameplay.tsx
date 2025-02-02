@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FlippingFlashcard from "../components/Flipping_Flashcard.tsx";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getCardsOfDeck, listenToCurrentCard, incrementCurrentCard, incrementPlayerScore } from "../firebase/firestore";
 import Cookies from "js-cookie";
 
@@ -10,6 +10,7 @@ interface Card {
 }
 
 const Gameplay: React.FC = () => {
+  const navigate = useNavigate();
   const { deckId, gameId } = useParams<{ deckId: string; gameId: string }>();
   const [cards, setCards] = useState<Card[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
@@ -56,6 +57,12 @@ const Gameplay: React.FC = () => {
 
     return () => unsub();
   }, [gameId]);
+
+  useEffect(() => {
+    if (cards.length > 0 && currentCardIndex >= cards.length && gameId) {
+      navigate(`/leaderboard/${gameId}`);
+    }
+  }, [currentCardIndex, cards.length, gameId, navigate]);
 
   const handleNextCard = async () => {
     setSelectedAnswer(null); 

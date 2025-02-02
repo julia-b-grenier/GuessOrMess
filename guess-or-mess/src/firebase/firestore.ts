@@ -1,5 +1,5 @@
 // src/firestore.ts
-import { Card, Deck } from "../types/game";
+import { Card, Deck, Player } from "../types/game";
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, addDoc, updateDoc, arrayUnion, collection, writeBatch, increment, onSnapshot } from "firebase/firestore";
 
@@ -235,13 +235,31 @@ export const fetchLeaderboard = async (gameId: string) => {
 
   const gameData = gameDocSnap.data();
 
-  if (Array.isArray(gameData.players)) {
-    // Sort players by descending score
-    const sortedPlayers = [...gameData.players].sort(
-      (a, b) => b.score - a.score
-    );
-
-    const players = await Promise.all(sortedPlayers);
-    return players.filter(player => player !== null);
+  if (!gameData || !gameData.players || gameData.players.length === 0) {
+    throw new Error("No players in this game");
   }
-}
+
+  const playerPromises = gameData.players.map(async (playerPath: string) => {
+    const playerRefId = playerPath.split("/").pop(); // Get last segment of the path
+    if (!playerRefId) {
+      console.error("Invalid player path:", playerPath);
+      return null;
+    }
+
+    const playerDocRef = doc(db, "players", playerRefId);
+    const playerDocSnap = await getDoc(playerDocRef);
+
+    if (playerDocSnap.exists()) {
+      return { id: playerRefId, ...playerDocSnap.data() } as Player;
+    } else {
+      console.error(`Player with ID ${playerRefId} not found.`);
+      return null;
+    }
+  });
+
+  const players = await Promise.all(playerPromises);
+
+  return players
+    .filter((player): player is Player => player !== null) // Type-safe filtering
+    .sort((a, b) => b.score - a.score); // Sort by score descending
+};

@@ -4,10 +4,10 @@ import { fetchLeaderboard } from "../firebase/firestore";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { Player } from "../types/game";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const Leaderboard = () => {
-  const { gameId } = useParams<{ gameId: string }>();
+  const gameId = Cookies.get("gameId");
   const [players, setPlayers] = useState<Player[]>([]);
   const podiumOrder = [1, 0, 2] as const;
 
@@ -24,6 +24,7 @@ const Leaderboard = () => {
   } as const;
 
   useEffect(() => {
+    console.log("GAME ID:", gameId);
     if (!gameId) {
       console.error("No game ID provided.");
       return;
@@ -32,8 +33,9 @@ const Leaderboard = () => {
     const getTopPlayers = async () => {
       try {
         const gamePlayers = await fetchLeaderboard(gameId);
+        console.log("FETCHED PLAYERS:", gamePlayers)
         setPlayers(
-          (gamePlayers || []).filter((player: Player | null) => player !== null)
+          (gamePlayers).filter((player: Player | null) => player !== null)
         );
       } catch (error) {
         console.error("Error fetching top players.");
@@ -41,6 +43,7 @@ const Leaderboard = () => {
     };
 
     getTopPlayers();
+    console.log("PLAYERS", players);
   }, [gameId]);
 
   // Get remaining players (4th place onwards)
