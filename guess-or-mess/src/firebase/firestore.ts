@@ -120,3 +120,37 @@ export const createDeck = async (cards: Card[], deckName: string) => {
   await batch.commit();
   return deckDocRef.id;
 }
+
+
+export const getCardsOfDeck = async (deckId: string) => {
+  const deckDocRef = doc(db, 'decks', deckId);
+  const deckDocSnap = await getDoc(deckDocRef);
+
+  if (!deckDocSnap.exists()) {
+    throw new Error("Deck not found");
+  }
+
+  const deckData = deckDocSnap.data();
+  console.log(deckData)
+  
+  if (!deckData || !deckData.cardRefs || deckData.cardRefs.length === 0) {
+    throw new Error("No cards in this deck");
+  }
+
+  const cardPromises = deckData.cardRefs.map(async (cardRefId: string) => {
+    const cardDocRef = doc(db, 'cards', cardRefId);
+    const cardDocSnap = await getDoc(cardDocRef);
+
+    if (cardDocSnap.exists()) {
+      console.log(cardDocSnap.data())
+      return cardDocSnap.data(); 
+    } else {
+      console.error(`Card with ID ${cardRefId} not found.`);
+      return null;
+    }
+  });
+
+  const cards = await Promise.all(cardPromises);
+
+  return cards.filter(card => card !== null);
+}

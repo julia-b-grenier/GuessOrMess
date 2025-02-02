@@ -2,8 +2,9 @@ import * as cheerio from "cheerio";
 import * as React from "react";
 import { Card } from "../types/game";
 import { createDeck } from "../firebase/firestore";
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';  // Make sure to import js-cookie
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 interface FileState {
   fileContent: string;
@@ -11,8 +12,9 @@ interface FileState {
   error: string | null;
   success: string | null;
 }
-export class FileSelector extends React.Component<{}, FileState> {
-  constructor(props: {}) {
+
+export class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => void }, FileState> {
+  constructor(props: { onDeckCreated: (deckId: string) => void }) {
     super(props);
     this.state = {
       fileContent: "",
@@ -26,19 +28,22 @@ export class FileSelector extends React.Component<{}, FileState> {
   async uploadDeckToFirebase(cards: Card[], filename: string) {
     this.setState({ isLoading: true, error: null, success: null });
 
+    const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+
     try {
-      const deckId = await createDeck(cards, filename.replace(".txt", ""));
+      const deckId = await createDeck(shuffledCards, filename.replace(".txt", ""));
       this.setState({
         isLoading: false,
         success: `Deck successfully created with ID: ${deckId}`,
       });
-      return deckId;
+
+      // Notify parent component (StartGame) about deck creation
+      this.props.onDeckCreated(deckId);
     } catch (error) {
       this.setState({
         isLoading: false,
         error: "Failed to create deck. Please try again.",
       });
-
       console.error("Error creating deck:", error);
     }
   }
@@ -62,8 +67,7 @@ export class FileSelector extends React.Component<{}, FileState> {
         await this.uploadDeckToFirebase(parsedData, file.name);
       } catch (error) {
         this.setState({
-          error:
-            "Error processing file. Please ensure it's in the correct format." + error,
+          error: "Error processing file. Please ensure it's in the correct format." + error,
         });
       }
     };
@@ -87,17 +91,9 @@ export class FileSelector extends React.Component<{}, FileState> {
             className="mb-4"
           />
 
-          {this.state.isLoading && (
-            <div className="text-blue-600">Creating deck...</div>
-          )}
-
-          {this.state.error && (
-            <div className="text-red-600">{this.state.error}</div>
-          )}
-
-          {this.state.success && (
-            <div className="text-green-600">{this.state.success}</div>
-          )}
+          {this.state.isLoading && <div className="text-blue-600">Creating deck...</div>}
+          {this.state.error && <div className="text-red-600">{this.state.error}</div>}
+          {this.state.success && <div className="text-green-600">{this.state.success}</div>}
         </div>
       </div>
     );
@@ -118,19 +114,23 @@ const parseAnkiDeck = (deckData: string) => {
   return pairs;
 };
 
-
 function StartGame() {
+  const navigate = useNavigate();
+  const handleGameplay = () => {
+    navigate(`/gameplay/${deckId}`);
+  };
+
   const [gameId, setGameId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [deckId, setDeckId] = useState<string>("");
 
   useEffect(() => {
-    // Get values from cookies when the component mounts
-    const storedGameId = Cookies.get('gameId');
-    const storedUsername = Cookies.get('username');
+    const storedGameId = Cookies.get("gameId");
+    const storedUsername = Cookies.get("username");
 
     setGameId(storedGameId || null);
     setUsername(storedUsername || null);
-  }, []);  // Empty dependency array ensures this effect runs only once on mount
+  }, []);
 
   return (
     <div>
@@ -144,7 +144,18 @@ function StartGame() {
         <p>Game and username are not available.</p>
       )}
       <p>Game will begin soon!</p>
-      <FileSelector />
+
+      {/* Pass the function to update deckId */}
+      <FileSelector onDeckCreated={setDeckId} />
+
+      {deckId && (
+        <button
+          className="text-white rounded-lg h-12 shadow-md hover:bg-gray-600"
+          onClick={handleGameplay}
+        >
+          Start Gameplay
+        </button>
+      )}
     </div>
   );
 }
