@@ -115,7 +115,7 @@ const Gameplay: React.FC = () => {
     }
   }, [currentCardIndex, cards, isFlipped]);
 
-  const currentCard = cards[currentCardIndex];
+  const currentCard = cards[currentCardIndex] ?? { question: "Loading...", answer: "" };
 
   useEffect(() => {
     return () => {
