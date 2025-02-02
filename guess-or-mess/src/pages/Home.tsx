@@ -13,7 +13,6 @@ function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ✅ Hook is inside component function
     Cookies.remove("username");
     Cookies.remove("gameId");
     Cookies.remove("playerId");
