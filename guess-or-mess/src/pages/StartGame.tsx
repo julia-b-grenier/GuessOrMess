@@ -5,6 +5,7 @@ import { createDeck } from "../firebase/firestore";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import WaitingArea from "../components/WaitingArea";
+import { useNavigate } from "react-router-dom";
 
 interface FileState {
   fileContent: string;
@@ -14,8 +15,8 @@ interface FileState {
   selectedFileName: string | null;
 }
 
-export class FileSelector extends React.Component<{}, FileState> {
-  constructor(props: {}) {
+export class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => void }, FileState> {
+  constructor(props: { onDeckCreated: (deckId: string) => void }) {
     super(props);
     this.state = {
       fileContent: "",
@@ -30,13 +31,17 @@ export class FileSelector extends React.Component<{}, FileState> {
   async uploadDeckToFirebase(cards: Card[], filename: string) {
     this.setState({ isLoading: true, error: null, success: null });
 
+    const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+
     try {
-      const deckId = await createDeck(cards, filename.replace(".txt", ""));
+      const deckId = await createDeck(shuffledCards, filename.replace(".txt", ""));
       this.setState({
         isLoading: false,
         success: `Deck successfully created with ID: ${deckId}`,
       });
-      return deckId;
+
+      // Notify parent component (StartGame) about deck creation
+      this.props.onDeckCreated(deckId);
     } catch (error) {
       this.setState({
         isLoading: false,
@@ -199,8 +204,14 @@ const parseAnkiDeck = (deckData: string) => {
 };
 
 function StartGame() {
+  const navigate = useNavigate();
+  const handleGameplay = () => {
+    navigate(`/gameplay/${deckId}`);
+  };
+
   const [gameId, setGameId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [deckId, setDeckId] = useState<string>("");
 
   useEffect(() => {
     const storedGameId = Cookies.get("gameId");
