@@ -1,7 +1,7 @@
-kupokeato	receive
-kutumainito	hope
-kuamuato	decide
-kuambiato 	tell
-kutafutato 	search for
-kuchukuato 	carry, to take
-kusaidiato 	help, to assist
+kupokea	to receive
+kutumaini	to hope
+kuamua	to decide
+kuambia	to tell
+kutafuta	to search for
+kuchukua	to carry, to take
+kusaidia	to help, to assist
