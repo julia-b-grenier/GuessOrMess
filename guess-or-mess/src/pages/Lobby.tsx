@@ -7,7 +7,7 @@ const Lobby = () => {
   return (
     <div>
       <div>
-        <h1>Game Lobby</h1>
+        <h1 className="text-5xl font-bold mb-10">Game Lobby</h1>
         <GameCode textToCopy={gameCode ?? ""} />
       </div>
 
