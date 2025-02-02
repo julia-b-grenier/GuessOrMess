@@ -5,6 +5,8 @@ import { createDeck } from "../firebase/firestore"; // Assuming you have this fu
 import WaitingArea from "../components/WaitingArea"; // Assuming this component exists
 import * as cheerio from "cheerio";
 import GameCode from "../components/GameCode";
+import splash from "./../assets/splash.svg";
+import waitSplash from "./../assets/wait-splash.svg";
 
 // Define the structure of a Card
 interface Card {
@@ -21,8 +23,14 @@ interface FileState {
 }
 
 // FileSelector component to handle deck file upload
-class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => void; gameId: string | null }, FileState> {
-  constructor(props: { onDeckCreated: (deckId: string) => void; gameId: string | null }) {
+class FileSelector extends React.Component<
+  { onDeckCreated: (deckId: string) => void; gameId: string | null },
+  FileState
+> {
+  constructor(props: {
+    onDeckCreated: (deckId: string) => void;
+    gameId: string | null;
+  }) {
     super(props);
     this.state = {
       fileContent: "",
@@ -36,23 +44,22 @@ class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => 
 
   async uploadDeckToFirebase(cards: Card[], filename: string, gameId: string) {
     this.setState({ isLoading: true, error: null, success: null });
-  
+
     const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
-  
+
     try {
       const deckId = await createDeck(
         shuffledCards,
         filename.replace(".txt", ""),
         gameId
       );
-      
+
       this.setState({
         isLoading: false,
         success: `Deck successfully created with ID: ${deckId}`,
       });
-  
-      this.props.onDeckCreated(deckId); 
-  
+
+      this.props.onDeckCreated(deckId);
     } catch (error) {
       this.setState({
         isLoading: false,
@@ -61,7 +68,7 @@ class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => 
       console.error("Error creating deck:", error);
     }
   }
-  
+
   handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -95,7 +102,8 @@ class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => 
       } catch (error) {
         this.setState({
           error:
-            "Error processing file. Please ensure it's in the correct format." + error,
+            "Error processing file. Please ensure it's in the correct format." +
+            error,
         });
       }
     };
@@ -114,7 +122,6 @@ class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => 
           <label className="mr-auto cursor-pointer">
             <div className="border-2 border-dashed border-gray-400 rounded-lg p-2 hover:border-blue-500 transition-colors duration-200">
               <div className="flex flex-col items-center space-y-4">
-                
                 <div className="text-center">
                   <p className="text-lg font-semibold text-gray-300">
                     Drop your deck file here
@@ -229,28 +236,37 @@ function StartGame() {
   };
 
   return (
-    <div className="flex flex-col items-center p-8 space-y-12 max-w-4xl mx-auto">
-      <div className="flex flex-row justify-start w-full">
-        <div className="">
-          <GameCode textToCopy={gameId ?? ""}></GameCode>
+    <div className="h-full">
+      <img
+        src={splash}
+        alt="Splash"
+        className="absolute top-0 right-3 w-100 h-80 p-0 -z-1"
+      />
+      <img
+        src={waitSplash}
+        alt="Wait Splash"
+        className="absolute bottom-0 left-4 w-70 h-70 p-0"
+      />
+      <div className="flex flex-col items-center p-8 space-y-12 max-w-4xl mx-auto relative">
+        <div className="flex flex-row justify-start w-full">
+          <div className="">
+            <GameCode textToCopy={gameId ?? ""}></GameCode>
+          </div>
+          <button
+            className="join-game-button ml-auto disabled:opacity-20"
+            onClick={handleGameplay}
+            disabled={!deckId}
+          >
+            Start Gameplay
+          </button>
         </div>
-        <button
-          className="join-game-button ml-auto disabled:opacity-20"
-          onClick={handleGameplay}
-          disabled={!deckId}
-        >
-          Start Gameplay
-        </button>
-      </div>
 
-      <div className="w-full">
-
-        
-        <div className="mb-5 w-100%">
-          <WaitingArea />
+        <div className="w-full">
+          <div className="mb-5 w-100%">
+            <WaitingArea />
+          </div>
+          <FileSelector gameId={gameId} onDeckCreated={setDeckId} />
         </div>
-        <FileSelector gameId={gameId} onDeckCreated={setDeckId} />
-
       </div>
     </div>
   );
