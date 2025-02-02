@@ -1,11 +1,21 @@
-import * as cheerio from "cheerio";
-import * as React from "react";
-import { Card } from "../types/game";
-import { createDeck } from "../firebase/firestore";
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import WaitingArea from "../components/WaitingArea";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { createDeck } from "../firebase/firestore"; // Assuming you have this function
+import WaitingArea from "../components/WaitingArea"; // Assuming this component exists
+import * as cheerio from "cheerio";
+
+// Define the structure of a Card
+interface Card {
+  question: string;
+  answer: string; // Assuming answer is a single answer for simplicity
+}
+
+interface Deck {
+  name: string;
+  cardRefs: string[];
+  totalCards: number;
+}
 
 interface FileState {
   fileContent: string;
@@ -15,11 +25,9 @@ interface FileState {
   selectedFileName: string | null;
 }
 
-export class FileSelector extends React.Component<
-  { onDeckCreated: (deckId: string) => void },
-  FileState
-> {
-  constructor(props: { onDeckCreated: (deckId: string) => void }) {
+// FileSelector component to handle deck file upload
+class FileSelector extends React.Component<{ onDeckCreated: (deckId: string) => void; gameId: string | null }, FileState> {
+  constructor(props: { onDeckCreated: (deckId: string) => void; gameId: string | null }) {
     super(props);
     this.state = {
       fileContent: "",
@@ -31,23 +39,25 @@ export class FileSelector extends React.Component<
     this.handleChange = this.handleChange.bind(this);
   }
 
-  async uploadDeckToFirebase(cards: Card[], filename: string) {
+  async uploadDeckToFirebase(cards: Card[], filename: string, gameId: string) {
     this.setState({ isLoading: true, error: null, success: null });
-
+  
     const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
-
+  
     try {
       const deckId = await createDeck(
         shuffledCards,
-        filename.replace(".txt", "")
+        filename.replace(".txt", ""),
+        gameId
       );
+      
       this.setState({
         isLoading: false,
         success: `Deck successfully created with ID: ${deckId}`,
       });
-
-      // Notify parent component (StartGame) about deck creation
-      this.props.onDeckCreated(deckId);
+  
+      this.props.onDeckCreated(deckId); 
+  
     } catch (error) {
       this.setState({
         isLoading: false,
@@ -56,7 +66,7 @@ export class FileSelector extends React.Component<
       console.error("Error creating deck:", error);
     }
   }
-
+  
   handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -80,12 +90,17 @@ export class FileSelector extends React.Component<
           return;
         }
 
-        await this.uploadDeckToFirebase(parsedData, file.name);
+        const { gameId } = this.props; // Use gameId passed from the parent component
+
+        if (gameId) {
+          await this.uploadDeckToFirebase(parsedData, file.name, gameId); // Pass gameId here
+        } else {
+          this.setState({ error: "No Game ID available." });
+        }
       } catch (error) {
         this.setState({
           error:
-            "Error processing file. Please ensure it's in the correct format." +
-            error,
+            "Error processing file. Please ensure it's in the correct format." + error,
         });
       }
     };
@@ -195,6 +210,7 @@ export class FileSelector extends React.Component<
   }
 }
 
+// Parse the file into the correct format for cards
 const parseAnkiDeck = (deckData: string) => {
   const pairs: { question: string; answer: string }[] = [];
   const lines = deckData.split("\n").filter((line) => line.trim() !== "");
@@ -209,14 +225,9 @@ const parseAnkiDeck = (deckData: string) => {
   return pairs;
 };
 
+// Main StartGame component to display game state
 function StartGame() {
   const navigate = useNavigate();
-  const handleGameplay = () => {
-    if (gameId) {
-      navigate(`/gameplay/${deckId}/${gameId}`);
-    }
-  };
-
   const [gameId, setGameId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [deckId, setDeckId] = useState<string>("");
@@ -229,17 +240,20 @@ function StartGame() {
     setUsername(storedUsername || null);
   }, []);
 
-  
+  const handleGameplay = () => {
+    if (gameId && deckId) {
+      navigate(`/gameplay/${deckId}/${gameId}`);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center p-8 space-y-12">
       <div className="py-4">
         <h1 className="text-7xl font-bold">Game ID: {gameId}</h1>
       </div>
-      
+
       <div>
         <h2>Welcome to Start Game Page</h2>
-  
-        {/* Conditional rendering for Game ID and Username */}
         {gameId && username ? (
           <>
             <p>Game ID: {gameId}</p>
@@ -248,12 +262,12 @@ function StartGame() {
         ) : (
           <p>Game and username are not available.</p>
         )}
-  
+
         <p>Game will begin soon!</p>
-  
-        {/* FileSelector Component */}
-        <FileSelector onDeckCreated={setDeckId} />
-        
+
+        {/* Pass gameId to FileSelector */}
+        <FileSelector gameId={gameId} onDeckCreated={setDeckId} />
+
         {/* Only show this button if deckId is available */}
         {deckId && (
           <button
@@ -263,15 +277,12 @@ function StartGame() {
             Start Gameplay
           </button>
         )}
-  
+
         {/* WaitingArea component */}
         <WaitingArea />
       </div>
     </div>
   );
-  
-
-
 }
 
 export default StartGame;

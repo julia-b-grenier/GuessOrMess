@@ -20,7 +20,7 @@ export const createNewGame = async () => {
   await setDoc(gameRef, {
     deck: null,
     players: [],
-    currentCard: 0,
+    currentCard: -1,
   });
 
   return gameId;
@@ -96,20 +96,19 @@ export const addPlayerToGame = async (username: string, gameId: string) => {
   return playerRef.path;
 };
 
-export const createDeck = async (cards: Card[], deckName: string) => {
+export const createDeck = async (cards: Card[], deckName: string, gameId: string) => {
   const batch = writeBatch(db);
   const cardRefs: string[] = [];
 
   for (const card of cards) {
-    const cardDocRef = doc(collection(db, 'cards'));
+    const cardDocRef = doc(collection(db, "cards"));
     batch.set(cardDocRef, {
       ...card,
-    })
+    });
     cardRefs.push(cardDocRef.id);
   }
 
-  // Create deck document
-  const deckDocRef = doc(collection(db, 'decks'));
+  const deckDocRef = doc(collection(db, "decks"));
   const newDeck: Deck = {
     name: deckName,
     cardRefs,
@@ -118,9 +117,22 @@ export const createDeck = async (cards: Card[], deckName: string) => {
 
   batch.set(deckDocRef, newDeck);
 
-  await batch.commit();
+  await batch.commit(); // Commit the batch before updating the game doc
+
+  const gameDocRef = doc(db, "games", gameId);
+  const gameDocSnap = await getDoc(gameDocRef);
+
+  if (!gameDocSnap.exists()) {
+    throw new Error("Game not found.");
+  }
+
+  // Update the game document to store only the deck ID
+  await updateDoc(gameDocRef, {
+    deck: deckDocRef.id, // Store the deck ID instead of the reference
+  });
+
   return deckDocRef.id;
-}
+};
 
 
 export const getCardsOfDeck = async (deckId: string) => {
