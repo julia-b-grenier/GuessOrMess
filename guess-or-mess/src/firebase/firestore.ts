@@ -33,7 +33,24 @@ export const getPlayersInGame = async (gameId: string) => {
     throw new Error(`Game ${gameId} not found`);
   }
 
-  return gameSnap.data().players || [];
+  const playersRefPaths = gameSnap.data().players || [];
+
+  // Fetch the player data for each player reference path
+  const playersData = await Promise.all(
+    playersRefPaths.map(async (playerRefPath: string) => {
+      const playerRef = doc(db, playerRefPath);  // Create a reference to the player document
+      const playerSnap = await getDoc(playerRef);  // Fetch the player data
+      
+      if (!playerSnap.exists()) {
+        console.error(`Player data not found for ${playerRefPath}`);
+        return null; // In case player data is not found, return null (or handle it differently)
+      }
+      
+      return playerSnap.data(); // Return player data
+    })
+  );
+
+  return playersData.filter(player => player !== null); // Filter out any null values (in case some players were not found)
 };
 
 export const addPlayerToGame = async (username: string, gameId: string) => {
